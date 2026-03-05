@@ -1,7 +1,6 @@
 import requests
 from flask import Flask, request, Response, send_from_directory
 import os
-import json
 
 app = Flask(__name__, static_folder='.')
 
@@ -19,10 +18,11 @@ def anthropic_proxy():
     if request.method == 'OPTIONS':
         return Response('', 200, headers=cors_headers)
     try:
+        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
         resp = requests.post(
             'https://api.anthropic.com/v1/messages',
             headers={
-                'x-api-key': request.headers.get('x-api-key', ''),
+                'x-api-key': api_key,
                 'anthropic-version': '2023-06-01',
                 'content-type': 'application/json'
             },
