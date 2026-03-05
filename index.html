@@ -215,9 +215,10 @@ async function fetchXSearch(query, maxResults=5, startTime=null) {
     'user.fields': 'name,username',
   });
   if (startTime) params.set('start_time', startTime);
-  // Route through local proxy (localhost:8765) — only accessible from this machine
-  const url = '/2/tweets/search/recent?' + params.toString();
-  const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + X_BEARER } });
+ // Send token as URL param since Render strips Authorization headers
+params.set('bearer_token', X_BEARER);
+const url = '/2/tweets/search/recent?' + params.toString();
+const res = await fetch(url);
   if (!res.ok) {
     const err = await res.json().catch(()=>({}));
     throw new Error(err.detail || 'X API error ' + res.status);
