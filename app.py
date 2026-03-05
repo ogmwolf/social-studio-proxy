@@ -1,5 +1,6 @@
 import requests
-from flask import Flask, request, Response, send_from_directory
+from flask import Flask, request, Response
+from bs4 import BeautifulSoup
 import os
 import json
 
@@ -25,6 +26,27 @@ def check_password():
     if password == correct:
         return Response('{"ok": true}', mimetype='application/json')
     return Response('{"ok": false}', mimetype='application/json')
+
+@app.route('/expand-url', methods=['POST'])
+def expand_url():
+    try:
+        data = request.get_json()
+        url = data.get('url', '')
+        resp = requests.get(url, timeout=8, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=True)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        title = soup.title.string.strip() if soup.title else ''
+        desc = ''
+        meta = soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'property': 'og:description'})
+        if meta:
+            desc = meta.get('content', '')[:500]
+        if not desc:
+            p = soup.find('p')
+            if p:
+                desc = p.get_text()[:500]
+        summary = (title + '. ' + desc).strip()
+        return Response(json.dumps({'title': title, 'summary': summary}), mimetype='application/json')
+    except Exception as e:
+        return Response(json.dumps({'error': str(e)}), mimetype='application/json')
 
 @app.route('/proxy/anthropic', methods=['POST', 'OPTIONS'])
 def anthropic_proxy():
@@ -82,3 +104,11 @@ def twitter_proxy(path):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+```
+
+And your `requirements.txt` should be:
+```
+flask
+requests
+gunicorn
+beautifulsoup4
