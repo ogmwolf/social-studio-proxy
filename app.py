@@ -1,6 +1,7 @@
 import requests
 from flask import Flask, request, Response, send_from_directory
 import os
+import json
 
 app = Flask(__name__, static_folder='.')
 
@@ -15,6 +16,15 @@ def index():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
+@app.route('/check-password', methods=['POST'])
+def check_password():
+    data = request.get_json()
+    password = data.get('password', '')
+    correct = os.environ.get('APP_PASSWORD', '')
+    if password == correct:
+        return Response('{"ok": true}', mimetype='application/json')
+    return Response('{"ok": false}', mimetype='application/json')
 
 @app.route('/proxy/anthropic', methods=['POST', 'OPTIONS'])
 def anthropic_proxy():
