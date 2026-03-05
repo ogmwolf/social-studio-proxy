@@ -216,7 +216,7 @@ async function fetchXSearch(query, maxResults=5, startTime=null) {
   });
   if (startTime) params.set('start_time', startTime);
  // Send token as URL param since Render strips Authorization headers
-params.set('bearer_token', X_BEARER);
+params.set('bearer_token', decodeURIComponent(X_BEARER));
 const url = '/2/tweets/search/recent?' + params.toString();
 const res = await fetch(url);
   if (!res.ok) {
