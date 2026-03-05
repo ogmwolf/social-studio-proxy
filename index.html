@@ -341,7 +341,7 @@ function switchTab(name, el) {
 async function callAPI(system, msg, search=true) {
   const body = { model:'claude-sonnet-4-20250514', max_tokens:4000, system, messages:[{role:'user',content:msg}] };
   if (search) body.tools = [{type:'web_search_20250305', name:'web_search'}];
-  const res = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
   const d = await res.json();
   const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
   const s=text.indexOf('['), e=text.lastIndexOf(']');
@@ -351,7 +351,7 @@ async function callAPI(system, msg, search=true) {
 
 async function callAPIObj(system, msg) {
   const body = { model:'claude-sonnet-4-20250514', max_tokens:400, system, messages:[{role:'user',content:msg}] };
-  const res = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
   const d = await res.json();
   const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
   const s=text.indexOf('{'), e=text.lastIndexOf('}');
