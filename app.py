@@ -6,7 +6,11 @@ app = Flask(__name__, static_folder='.')
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    response = send_from_directory('.', 'index.html')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/proxy/anthropic', methods=['POST', 'OPTIONS'])
 def anthropic_proxy():
@@ -27,7 +31,7 @@ def anthropic_proxy():
                 'content-type': 'application/json'
             },
             data=request.get_data(),
-            timeout=60
+            timeout=120
         )
         cors_headers['Content-Type'] = 'application/json'
         return Response(resp.content, status=resp.status_code, headers=cors_headers)
