@@ -6,7 +6,11 @@ app = Flask(__name__, static_folder='.')
 
 @app.route('/')
 def index():
-    response = send_from_directory('.', 'index.html')
+    with open(os.path.join('.', 'index.html'), 'r') as f:
+        html = f.read()
+    bearer_token = os.environ.get('X_BEARER_TOKEN', '')
+    html = html.replace('%%BEARER_TOKEN%%', bearer_token)
+    response = Response(html, mimetype='text/html')
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
