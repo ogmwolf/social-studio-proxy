@@ -104,9 +104,3 @@ def twitter_proxy(path):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
-And your `requirements.txt` should be:
-flask
-requests
-gunicorn
-beautifulsoup4
