@@ -18,6 +18,30 @@ def index():
     response.headers['Expires'] = '0'
     return response
 
+
+@app.route('/test-anthropic')
+def test_anthropic():
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+    test_body = {
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 10,
+        "messages": [{"role": "user", "content": "say hi"}]
+    }
+    try:
+        resp = requests.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={
+                'x-api-key': api_key,
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json'
+            },
+            json=test_body,
+            timeout=30
+        )
+        return Response(f"Status: {resp.status_code}\nBody: {resp.text}", mimetype='text/plain')
+    except Exception as e:
+        return Response(f"Error: {str(e)}", mimetype='text/plain')
+
 @app.route('/check-password', methods=['POST'])
 def check_password():
     data = request.get_json()
