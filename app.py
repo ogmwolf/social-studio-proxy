@@ -19,29 +19,6 @@ def index():
     return response
 
 
-@app.route('/test-anthropic')
-def test_anthropic():
-    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-    test_body = {
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 10,
-        "messages": [{"role": "user", "content": "say hi"}]
-    }
-    try:
-        resp = requests.post(
-            'https://api.anthropic.com/v1/messages',
-            headers={
-                'x-api-key': api_key,
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json'
-            },
-            json=test_body,
-            timeout=30
-        )
-        return Response(f"Status: {resp.status_code}\nBody: {resp.text}", mimetype='text/plain')
-    except Exception as e:
-        return Response(f"Error: {str(e)}", mimetype='text/plain')
-
 @app.route('/check-password', methods=['POST'])
 def check_password():
     data = request.get_json()
@@ -81,25 +58,36 @@ def anthropic_proxy():
     }
     if request.method == 'OPTIONS':
         return Response('', 200, headers=cors_headers)
-    try:
-        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-        resp = requests.post(
-            'https://api.anthropic.com/v1/messages',
-            headers={
-                'x-api-key': api_key,
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json'
-            },
-            data=request.get_data(),
-            timeout=120
-        )
-        cors_headers['Content-Type'] = 'application/json'
-        if resp.status_code != 200:
-            print(f"Anthropic error {resp.status_code}: {resp.text}", flush=True)
-        return Response(resp.content, status=resp.status_code, headers=cors_headers)
-    except Exception as e:
-        cors_headers['Content-Type'] = 'application/json'
-        return Response(f'{{"error": "{str(e)}"}}', status=500, headers=cors_headers)
+    import time
+    body_data = request.get_data()
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+    for attempt in range(3):
+        try:
+            resp = requests.post(
+                'https://api.anthropic.com/v1/messages',
+                headers={
+                    'x-api-key': api_key,
+                    'anthropic-version': '2023-06-01',
+                    'content-type': 'application/json'
+                },
+                data=body_data,
+                timeout=120
+            )
+            if resp.status_code == 429 and attempt < 2:
+                print(f"429 rate limit, retrying in {10 * (attempt + 1)}s...", flush=True)
+                time.sleep(10 * (attempt + 1))
+                continue
+            cors_headers['Content-Type'] = 'application/json'
+            if resp.status_code != 200:
+                print(f"Anthropic error {resp.status_code}: {resp.text}", flush=True)
+            return Response(resp.content, status=resp.status_code, headers=cors_headers)
+        except Exception as e:
+            if attempt == 2:
+                cors_headers['Content-Type'] = 'application/json'
+                return Response(f'{{"error": "{str(e)}"}}', status=500, headers=cors_headers)
+            time.sleep(5)
+    cors_headers['Content-Type'] = 'application/json'
+    return Response('{"error": "Max retries exceeded"}', status=429, headers=cors_headers)
 
 @app.route('/<path:path>', methods=['GET', 'OPTIONS'])
 def twitter_proxy(path):
