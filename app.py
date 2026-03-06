@@ -49,6 +49,26 @@ def expand_url():
     except Exception as e:
         return Response(json.dumps({'error': str(e)}), mimetype='application/json')
 
+
+@app.route('/img-proxy')
+def img_proxy():
+    url = request.args.get('url', '')
+    if not url or 'twimg.com' not in url:
+        return Response('Invalid', status=400)
+    try:
+        resp = requests.get(url, headers={
+            'Referer': 'https://twitter.com/',
+            'User-Agent': 'Mozilla/5.0'
+        }, timeout=10, stream=True)
+        return Response(
+            resp.content,
+            status=resp.status_code,
+            headers={'Content-Type': resp.headers.get('Content-Type', 'image/jpeg'),
+                     'Cache-Control': 'public, max-age=3600'}
+        )
+    except Exception as e:
+        return Response(str(e), status=500)
+
 @app.route('/proxy/anthropic', methods=['POST', 'OPTIONS'])
 def anthropic_proxy():
     cors_headers = {
