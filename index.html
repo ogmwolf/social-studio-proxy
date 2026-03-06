@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Social Studio 1.0</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23a78bfa'/><circle cx='50' cy='50' r='34' fill='%230d0d0d'/><circle cx='50' cy='50' r='20' fill='%23a78bfa'/><circle cx='50' cy='50' r='7' fill='%230d0d0d'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080808; --surface: #111; --surface2: #181818;
+    --border: #222; --text: #efefef; --muted: #555;
+    --blue: #1d9bf0; --green: #2ec4b6; --red: #ff4b2b;
+    --purple: #a78bfa; --orange: #f59e0b; --linkedin: #0a66c2;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 40px 20px 80px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  .header { margin-bottom: 32px; }
+  .eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: inline-block; }
+  h1 { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
+  h1 span { color: var(--blue); }
+  .subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 28px; }
+  .tab { flex: 1; padding: 10px 12px; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); }
+  .tab.active { background: var(--blue); color: #fff; }
+  .tab.active.li { background: var(--linkedin); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .gen-btn.li-btn { background: var(--linkedin); }
+  .gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; }
+  .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #ffffff33; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .input-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+  .tweet-input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.7; resize: vertical; min-height: 100px; font-family: 'DM Sans', sans-serif; margin-bottom: 14px; transition: border-color 0.2s; }
+  .tweet-input:focus { outline: none; border-color: var(--blue); }
+  .tweet-input::placeholder { color: #2a2a2a; }
+  .trending-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .trending-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: border-color 0.2s, background 0.2s; animation: fadeUp 0.3s ease both; }
+  .trending-card:hover { border-color: #333; background: #161616; }
+  .trending-card.selected { border-color: var(--blue); background: #0d1f2e; }
+  .trending-meta { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+  .trending-source { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .trending-topic-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--surface2); color: var(--muted); }
+  .trending-text { font-size: 14px; line-height: 1.65; color: #ccc; }
+  .trending-why { font-family: 'DM Mono', monospace; font-size: 10px; color: #2e2e2e; margin-top: 8px; }
+  .error-box { background: #1a0808; border: 1px solid #ff4b2b44; border-radius: 10px; padding: 14px 16px; color: var(--red); font-size: 13px; margin-bottom: 20px; }
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .tags { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tag { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
+  .tag-topic { background: var(--surface2); color: var(--muted); }
+  .headline { font-size: 11px; color: #3a3a3a; font-style: normal; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+  .tweet-text { font-size: 15px; line-height: 1.75; color: #e0e0e0; margin-bottom: 14px; white-space: pre-wrap; }
+  .angle { font-size: 11px; color: #333; border-top: 1px solid var(--border); padding-top: 12px; margin-bottom: 14px; line-height: 1.5; }
+  .actions { display: flex; gap: 8px; }
+  .btn-copy { flex: 1; padding: 10px; font-size: 12px; font-weight: 600; background: #0d2137; color: var(--blue); border: 1px solid #1d9bf022; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .btn-copy.li { background: #071e38; color: var(--linkedin); border-color: #0a66c222; }
+  .btn-copy.copied { background: #0a2a15; color: var(--green); border-color: #2ec4b622; }
+  .btn-copy:hover:not(.copied) { opacity: 0.8; }
+  .btn-edit { padding: 10px 14px; font-size: 12px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
+  .btn-edit:hover { color: var(--text); }
+  .reply-source-tabs { display:flex; gap:4px; margin-bottom:20px; }
+  .rsTab { flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; background:transparent; color:var(--muted); transition:all 0.2s; }
+  .rsTab.active { background:var(--surface2); color:var(--text); border-color:#333; }
+  .rsTab:hover:not(.active) { color:var(--text); }
+  .account-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:#555; background:#151515; padding:2px 8px; border-radius:4px; }
+  .tier2-badge { font-family:'DM Mono',monospace; font-size:9px; color:#333; margin-left:4px; }
+  .btn-img { padding: 10px 12px; font-size: 12px; background: #151015; color: #664ea0; border: 1px solid #a78bfa22; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+  .btn-img:hover:not(:disabled) { background: #1e1228; color: var(--purple); }
+  .btn-img:disabled { opacity: 0.4; cursor: not-allowed; }
+  .edit-area { width: 100%; background: #0a0a0a; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.7; resize: vertical; min-height: 90px; font-family: 'DM Sans', sans-serif; margin-bottom: 10px; }
+  .edit-area:focus { outline: none; border-color: var(--blue); }
+  .edit-area.over { border-color: var(--red); }
+  .edit-footer { display: flex; justify-content: space-between; align-items: center; }
+  .char-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .char-count.over { color: var(--red); }
+  .edit-btns { display: flex; gap: 8px; }
+  .btn-cancel { padding: 6px 12px; font-size: 12px; background: var(--surface2); color: var(--muted); border: none; border-radius: 6px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .btn-save { padding: 6px 12px; font-size: 12px; font-weight: 600; background: var(--blue); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .footer-note { text-align: center; color: #222; font-family: 'DM Mono', monospace; font-size: 10px; margin-top: 28px; letter-spacing: 1px; }
+  .loading-hint { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0; font-family: 'DM Mono', monospace; letter-spacing: 1px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .selected-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: #aaa; line-height: 1.6; }
+  .back-btn { width: 100%; margin-top: 16px; padding: 10px; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; }
+  .back-btn:hover { color: var(--text); }
+  .li-badge { display: inline-block; background: #0a66c211; color: var(--linkedin); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; border: 1px solid #0a66c233; }
+  .img-box { margin-top: 14px; background: #0d0b12; border: 1px solid #a78bfa22; border-radius: 10px; padding: 16px; animation: fadeUp 0.3s ease both; }
+  .img-box-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #a78bfa88; margin-bottom: 10px; }
+  .img-box-prompt { font-size: 13px; color: #998ab8; line-height: 1.65; margin-bottom: 14px; font-style: normal; }
+  .img-box-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .img-action-btn { padding: 7px 14px; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; border: none; }
+  .img-action-btn:hover { opacity: 0.8; }
+  .btn-copy-prompt { background: #1e1228; color: #a78bfa; border: 1px solid #a78bfa33 !important; }
+  .btn-ideogram { background: #1a0f2e; color: #c084fc; border: 1px solid #c084fc22 !important; }
+  .btn-chatgpt { background: #0a1a14; color: #34d399; border: 1px solid #34d39922 !important; }
+</style>
+</head>
+<body>
+<div id="gate" style="position:fixed;inset:0;background:#0d0d0d;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#1a1a2e;border:1px solid #2a2a3e;border-radius:16px;padding:40px;width:320px;text-align:center;">
+    <div style="font-size:32px;margin-bottom:16px">🔐</div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:#a78bfa;margin-bottom:24px">SOCIAL STUDIO 1.0</div>
+    <input id="gate-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()" style="width:100%;box-sizing:border-box;background:#0d0d0d;border:1px solid #333;border-radius:8px;padding:12px 16px;color:#e0e0e0;font-size:15px;margin-bottom:12px;outline:none;">
+    <div id="gate-error" style="color:#ff4b4b;font-size:12px;margin-bottom:12px;display:none">Incorrect password</div>
+    <button onclick="checkPassword()" style="width:100%;background:#a78bfa;border:none;border-radius:8px;padding:12px;color:#0d0d0d;font-weight:700;font-size:15px;cursor:pointer">Enter</button>
+  </div>
+</div>
+<div id="main-app" style="display:none">
+<div class="wrap">
+  <div class="header">
+    <div class="eyebrow">Social Studio</div>
+    <h1><span>Social Studio</span> 1.0</h1>
+    <p class="subtitle">Research → draft → approve → post</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('original',this)">⚡ Tweets</button>
+    <button class="tab" onclick="switchTab('reply',this)">↩ Reply</button>
+    <button class="tab li" onclick="switchTab('linkedin',this)">💼 LinkedIn</button>
+  </div>
+
+  <!-- TWEETS -->
+  <div class="panel active" id="panel-original">
+    <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>⚡</span> Research & Draft Today's Tweets</button>
+    <div id="orig-error" class="error-box" style="display:none"></div>
+    <div id="orig-loading" class="loading-hint" style="display:none">Searching the web & drafting in your voice...</div>
+    <div id="orig-cards" class="cards"></div>
+    <div id="orig-footer" class="footer-note" style="display:none">Copy → paste into Twitter/X → post when ready</div>
+  </div>
+
+  <!-- REPLY -->
+  <div class="panel" id="panel-reply">
+
+    <!-- Source switcher -->
+    <div class="reply-source-tabs">
+      <button class="rsTab active" id="rsTab-watch" onclick="switchReplySource('watch',this)">👥 Watch List</button>
+      <button class="rsTab" id="rsTab-trend" onclick="switchReplySource('trend',this)">🔥 Trending</button>
+    </div>
+
+    <!-- WATCH LIST -->
+    <div id="rs-watch">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <p class="section-label" style="margin:0">Last 12 hours from your watch list</p>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#333">~$0.25 max</span>
+      </div>
+      <button class="gen-btn" id="watchBtn" onclick="loadWatchList()"><span>👥</span> Fetch Watch List Tweets</button>
+      <div id="watch-error" class="error-box" style="display:none"></div>
+      <div id="watch-loading" class="loading-hint" style="display:none">Fetching tweets from your watch list...</div>
+      <div id="watch-list" class="trending-list"></div>
+    </div>
+
+    <!-- TRENDING -->
+    <div id="rs-trend" style="display:none">
+      <p class="section-label">Hot conversations in your world right now</p>
+      <button class="gen-btn" id="trendBtn" onclick="findTrending()"><span>🔥</span> Find Trending Tweets</button>
+      <div id="trend-error" class="error-box" style="display:none"></div>
+      <div id="trend-loading" class="loading-hint" style="display:none">Searching X for trending conversations...</div>
+      <div id="trending-list" class="trending-list"></div>
+    </div>
+
+    <!-- Draft reply (shared) -->
+    <div id="step-reply" style="display:none">
+      <p class="section-label">Draft your reply</p>
+      <div id="selected-preview" class="selected-preview"></div>
+      <button class="gen-btn" id="replyBtn" onclick="generateReply()"><span>↩</span> Draft Reply in My Voice</button>
+      <div id="reply-error" class="error-box" style="display:none"></div>
+      <div id="reply-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
+      <div id="reply-cards" class="cards"></div>
+      <div id="reply-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
+      <button class="back-btn" onclick="resetReply()">← Back to tweets</button>
+    </div>
+
+    <hr class="divider">
+    <p class="section-label">Or paste any tweet to reply to</p>
+    <label class="input-label">Paste tweet text here</label>
+    <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
+    <button class="gen-btn" id="pasteBtn" onclick="generatePastedReply()"><span>↩</span> Draft Reply to This Tweet</button>
+    <div id="paste-error" class="error-box" style="display:none"></div>
+    <div id="paste-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
+    <div id="paste-cards" class="cards"></div>
+    <div id="paste-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
+  </div>
+
+  <!-- LINKEDIN -->
+  <div class="panel" id="panel-linkedin">
+    <div class="li-badge">💼 LinkedIn Format</div>
+    <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>💼</span> Research & Draft Today's LinkedIn Posts</button>
+    <div id="li-error" class="error-box" style="display:none"></div>
+    <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
+    <div id="li-cards" class="cards"></div>
+    <div id="li-footer" class="footer-note" style="display:none">Copy → paste into LinkedIn → post when ready</div>
+  </div>
+</div>
+
+<script>
+const X_BEARER = '%%BEARER_TOKEN%%';
+
+// Watched accounts — Tier 1 daily targets, Tier 2 watch list
+const WATCH_ACCOUNTS = [
+  { handle: 'stratechery',  tier: 1, topic: 'Tech & AI' },
+  { handle: '__mims',       tier: 1, topic: 'Tech & AI' },
+  { handle: 'chrisdo',      tier: 1, topic: 'Brand & Marketing' },
+  { handle: 'packyM',       tier: 1, topic: 'Culture & Media' },
+  { handle: 'profgalloway', tier: 1, topic: 'Brand & Marketing' },
+  { handle: 'paulroetzer',  tier: 1, topic: 'Brand & Marketing' },
+  { handle: 'sama',         tier: 2, topic: 'Tech & AI' },
+  { handle: 'karpathy',     tier: 2, topic: 'Tech & AI' },
+  { handle: 'sethgodin',    tier: 2, topic: 'Brand & Marketing' },
+  { handle: 'garyvee',      tier: 2, topic: 'Culture & Media' },
+];
+
+// Fetch tweets via local proxy (proxy.py must be running)
+async function fetchXSearch(query, maxResults=5, startTime=null) {
+  const params = new URLSearchParams({
+    query: query + ' -is:retweet -is:reply lang:en',
+    max_results: Math.max(10, maxResults),
+    'tweet.fields': 'created_at,public_metrics,author_id,attachments,entities',
+    'expansions': 'author_id,attachments.media_keys',
+    'media.fields': 'type,url,preview_image_url,variants',
+    'user.fields': 'name,username',
+  });
+  if (startTime) params.set('start_time', startTime);
+  // Send token as URL param since some hosts strip Authorization headers
+  params.set('bearer_token', X_BEARER);
+  const url = '/2/tweets/search/recent?' + params.toString();
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.detail || 'X API error ' + res.status);
+  }
+  const data = await res.json();
+  if (data.errors) throw new Error(data.errors[0].message);
+  return data;
+}
+
+// Check if proxy is reachable
+async function checkProxy() {
+  try {
+    const res = await fetch('/', { signal: AbortSignal.timeout(5000) });
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// Get ISO timestamp for N hours ago
+function hoursAgo(n) {
+  return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
+}
+
+const VOICE = `You are a ghostwriter for Matt Wolf — 20+ years building at the intersection of brands, culture, gaming, and tech. Former VP at Coca-Cola, VP of Blockchain Gaming at Zynga/Take-Two, founder of Double Twenty Productions. Advisor to startups and VC firms. Currently looking for his next exec, board, or advisory role.
+
+REAL EXAMPLES OF HIS VOICE:
+1. "I think about how reactive building in new areas of tech can be, and I constantly come back to this quote by Dwight D. Eisenhower: 'What is important is seldom urgent and what is urgent is seldom important.' I try to apply it to my personal life as often as I can, too."
+→ Shares a real lens. Unexpected reference. Personal without being confessional. No forced conclusion.
+
+2. "For sure Claude is the best thing to ever happen to my workflow. Not embellishing: I have personally been working on just the past 7 days: Product design, re-brand, GTM, PRDs, wireframes, Slack/JIRA pulls for CEO level context. Can't imagine going back to how I worked before."
+→ Confident opener. Backed by specific real detail. No hedging. Just honest.
+
+3. "Despite clear PMF, growing regulatory clarity, and finance and government turning bullish on the tech, heavy bearish sentiment lingers because speculative vaporware is over and has burned people's pockets. I've never been more bullish on crypto."
+→ Earns the landing line. Acknowledges the other side first. Confident without needing to convince.
+
+VOICE RULES:
+- Lead with the point, not the setup. First sentence must grab attention and land something real.
+- Sounds like a sharp 40-something exec who stays current — not stiff, not corporate, not trying too hard.
+- Specific over universal. Real detail beats vague insight every time.
+- Confident without arrogance. Insight emerges, never announced.
+- Conversational but smart. Short sentences punch. Vary rhythm.
+- No manufactured soundbites. No inspirational poster energy. No "let that sink in."
+- No quotes from famous people — sounds boomer and lazy.
+- No hashtags (except LinkedIn). No emojis. 
+- Never use em dashes (--) or hyphens to connect clauses — dead giveaway of AI writing. Use commas or periods.
+- Never start with "I" — leads with observation, not self.
+
+HIS WORLD: Gaming, esports, creator economy, brand marketing, culture, AI, platforms. Been ahead of every major curve. Believes AI is turning people into UI for computers. Believes great marketing comes from passion and humans, not tools.`;
+
+const ORIG_SYSTEM = VOICE + `
+
+TASK: Write 5 original tweets based on today's news.
+Return JSON array of exactly 5 objects:
+- "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "headline": story it connects to (1 short line)
+- "tweet": tweet text (max 280 chars)
+- "angle": why this works for Matt (1 sentence)
+Return ONLY raw JSON array.`;
+
+const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.
+
+Search the web RIGHT NOW for hottest conversations and debates gaining traction in Tech & AI, Culture & Media, Brand & Marketing. Look at news, Reddit, LinkedIn, blogs, forums. Find topics where a sharp exec's voice adds real value.
+
+Return JSON array of exactly 5 objects:
+- "author": Twitter/X handle of the person or account driving the conversation (e.g. "@sama", "@garyvee", "@benedictevans"). If it's a publication use their X handle (e.g. "@TechCrunch"). Always start with @.
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "tweet": 1-2 sentence summary of what's being debated (written like a tweet)
+- "why": one sentence on why this is good reply opportunity for Matt
+- "engagement": "Trending today"|"Hot debate"|"Gaining traction"
+Return ONLY raw JSON array.`;
+
+const REPLY_SYSTEM = VOICE + `
+
+TASK: Write 3 short reply options. 1 sentence, 2 max. Sharp, human, adds something new.
+Never "Great point" or "Totally agree". Never more than 2 sentences.
+
+Return JSON array of exactly 3 objects:
+- "angle": approach (e.g. "One-liner", "Pushback", "Personal experience")
+- "tweet": reply text (1-2 sentences max)
+- "why": why this works for Matt (1 sentence)
+Return ONLY raw JSON array.`;
+
+const LINKEDIN_SYSTEM = VOICE + `
+
+TASK: Write 3 LinkedIn posts based on today's news. Each should be medium-large: 3-5 tight paragraphs, substantial enough to be worth reading but never padded.
+
+Rules:
+- FIRST LINE IS EVERYTHING. Single punchy sentence that stops the scroll. No warmup. Land the point immediately.
+- More personal narrative than Twitter
+- Occasionally weave in Matt's real career naturally — not every post, vary which role: Coca-Cola, Zynga/Take-Two, Double Twenty, current advisor work. Only when it genuinely adds credibility or color, never forced.
+- Drop in real data and stats when you can find them — numbers make posts credible and shareable
+- Can show career reflection — Matt is in job search mode
+- No bullet listicles — real paragraphs
+- No quotes from famous people — sounds dated
+- End with a question or sharp observation that invites comments
+- 2-3 hashtags at end
+- Never use em dashes (--) or hyphens to connect clauses. Use commas or periods instead. This is critical.
+- Never use italic, bold, or any markdown formatting. Plain text only.
+
+Return JSON array of exactly 3 objects:
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "headline": story or theme it connects to (1 short line)
+- "post": full LinkedIn post text
+- "angle": why this works for Matt's LinkedIn brand (1 sentence)
+Return ONLY raw JSON array.`;
+
+const IMG_SYSTEM = `You generate bold, unexpected image prompts for social media posts.
+
+Given a social media post, generate a vivid, specific image generation prompt. Push creative boundaries. Think:
+- Surrealist or conceptual art
+- Unexpected metaphors made visual
+- Cinematic stills from a movie that doesn't exist
+- Street photography energy or raw documentary style
+- Abstract but emotionally resonant
+- Unusual perspectives, odd juxtapositions, unexpected color palettes
+
+NOT:
+- Stock photo vibes (no handshakes, no laptops, no "team collaborating")
+- Literal illustrations of what the post says
+- Generic "professional" imagery
+- Text, logos, or faces of real people
+
+The image should feel like it belongs in a cutting-edge magazine or art show, not a corporate deck.
+
+Return ONLY a JSON object with one field: "prompt" (the image generation prompt as a string).
+No markdown, no backticks, nothing else.`;
+
+const REWRITE_SYSTEM = VOICE + `
+
+TASK: Take the core idea from a trending topic and rewrite it as a completely original post in Matt's voice.
+This is NOT a reply. It's Matt originating the idea himself, inspired by what's trending.
+
+- Capture the essence of the topic but make it entirely Matt's own perspective
+- Write it as if Matt noticed this trend independently and has a sharp take
+- Can be a tweet (under 280 chars) or a short LinkedIn-style observation
+- First line must land immediately
+- Return JSON object with: "tweet" (the rewritten post) and "angle" (one sentence on the angle taken)
+Return ONLY raw JSON object.`;
+
+const TYPE_COLORS = { hot_take:'#FF4B2B', observation:'#a78bfa', thread_opener:'#00B4D8', question:'#f59e0b', insight:'#2EC4B6' };
+const TYPE_LABELS = { hot_take:'Hot Take', observation:'Observation', thread_opener:'Thread Opener', question:'Question', insight:'Insight' };
+const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
+
+let data = { orig:[], reply:[], paste:[], li:[] };
+let trending = [], selected = null;
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+async function callAPI(system, msg, search=true) {
+  const body = {
+    model:'claude-sonnet-4-6',
+    max_tokens:4000,
+    system: system,
+    messages:[{role:'user',content:msg}]
+  };
+  if (search) body.tools = [{type:'web_search_20250305', name:'web_search'}];
+  const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const d = await res.json();
+  const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
+  const s=text.indexOf('['), e=text.lastIndexOf(']');
+  if (s===-1||e===-1) throw new Error('No JSON found');
+  return JSON.parse(text.slice(s,e+1));
+}
+
+async function callAPIObj(system, msg) {
+  const body = {
+    model:'claude-sonnet-4-6',
+    max_tokens:400,
+    system: system,
+    messages:[{role:'user',content:msg}]
+  };
+  const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const d = await res.json();
+  const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
+  const clean = text.replace(/```json|```/g,'').trim();
+  const s=clean.indexOf('{'), e=clean.lastIndexOf('}');
+  return JSON.parse(clean.slice(s,e+1));
+}
+
+function busy(btnId, loadId, on, label, loadText) {
+  const b=document.getElementById(btnId), l=document.getElementById(loadId);
+  b.disabled=on;
+  b.innerHTML=on?`<span class="spinner"></span> ${loadText}`:label;
+  l.style.display=on?'block':'none';
+}
+
+function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
+  const el = document.getElementById(containerId);
+  const maxChars = isLinkedIn ? 3000 : 280;
+  el.innerHTML = arr.map((t,i) => {
+    const color = TYPE_COLORS[t.type]||TOPIC_COLORS[t.topic]||'#1d9bf0';
+    const label = TYPE_LABELS[t.type]||(t.angle||'Draft');
+    const rawContent = isLinkedIn ? (t.post||t.tweet) : t.tweet;
+    const content = rawContent
+      .replace(/\*\*(.*?)\*\*/g,'$1')
+      .replace(/\*(.*?)\*/g,'$1')
+      .replace(/_(.*?)_/g,'$1');
+    const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
+    const sizeLabel = t.size ? {small:'S — Short', medium:'M — Medium', large:'L — Long'}[t.size] : '';
+    const sizeColor = t.size ? {small:'#2EC4B6', medium:'#f59e0b', large:'#a78bfa'}[t.size] : '';
+    return `<div class="card" style="animation-delay:${i*.08}s">
+      <div class="tags">
+        <span class="tag" style="background:${color}1a;color:${color}">${label}</span>
+        ${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}
+        ${sizeLabel?`<span class="tag" style="background:${sizeColor}1a;color:${sizeColor}">${sizeLabel}</span>`:''}
+      </div>
+      ${t.headline?`<div class="headline">↳ ${t.headline}</div>`:''}
+      <div class="tweet-text" id="${key}-text-${i}">${content}</div>
+      <div class="angle">💡 ${t.angle||t.why||''}</div>
+      <div class="actions">
+        <button class="${copyClass}" id="${key}-copy-${i}" onclick="copyCard('${key}',${i},${isLinkedIn})">Copy</button>
+        <button class="btn-edit" onclick="editCard('${key}',${i},'${containerId}','${footerId}',${isLinkedIn},${maxChars})">Edit</button>
+        <button class="btn-img" id="${key}-imgbtn-${i}" onclick="generateImgPrompt('${key}',${i})">🖼 Image Prompt</button>
+      </div>
+      <div id="${key}-imgbox-${i}" style="display:none"></div>
+    </div>`;
+  }).join('');
+  document.getElementById(footerId).style.display='block';
+}
+
+function copyCard(key, i, isLinkedIn=false) {
+  const arr=data[key];
+  const text=isLinkedIn?(arr[i].post||arr[i].tweet):arr[i].tweet;
+  navigator.clipboard.writeText(text);
+  const b=document.getElementById(`${key}-copy-${i}`);
+  b.textContent='✓ Copied!'; b.classList.add('copied');
+  setTimeout(()=>{ b.textContent='Copy'; b.classList.remove('copied'); },2000);
+}
+
+function editCard(key, i, cId, fId, isLinkedIn=false, maxChars=280) {
+  const t=data[key][i];
+  const content=isLinkedIn?(t.post||t.tweet):t.tweet;
+  const color=TYPE_COLORS[t.type]||TOPIC_COLORS[t.topic]||'#1d9bf0';
+  const label=TYPE_LABELS[t.type]||(t.angle||'Draft');
+  document.getElementById(`${key}-text-${i}`).closest('.card').innerHTML=`
+    <div class="tags"><span class="tag" style="background:${color}1a;color:${color}">${label}</span>${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}</div>
+    <textarea class="edit-area" id="${key}-edit-${i}" oninput="updateCount('${key}',${i},${maxChars})" style="min-height:${isLinkedIn?'200px':'90px'}">${content}</textarea>
+    <div class="edit-footer">
+      <span class="char-count" id="${key}-count-${i}">${content.length}/${maxChars}</span>
+      <div class="edit-btns">
+        <button class="btn-cancel" onclick="renderCards(data['${key}'],'${key}','${cId}','${fId}',${isLinkedIn})">Cancel</button>
+        <button class="btn-save" onclick="saveEdit('${key}',${i},'${cId}','${fId}',${isLinkedIn})">Save</button>
+      </div>
+    </div>`;
+}
+
+function updateCount(key,i,max=280) {
+  const ta=document.getElementById(`${key}-edit-${i}`), ct=document.getElementById(`${key}-count-${i}`);
+  const len=ta.value.length; ct.textContent=`${len}/${max}`;
+  ct.className='char-count'+(len>max?' over':''); ta.className='edit-area'+(len>max?' over':'');
+}
+
+function saveEdit(key,i,cId,fId,isLinkedIn=false) {
+  const val=document.getElementById(`${key}-edit-${i}`).value;
+  if(isLinkedIn) data[key][i].post=val; else data[key][i].tweet=val;
+  renderCards(data[key],key,cId,fId,isLinkedIn);
+}
+
+async function generateImgPrompt(key, i) {
+  const btn = document.getElementById(`${key}-imgbtn-${i}`);
+  const box = document.getElementById(`${key}-imgbox-${i}`);
+  const arr = data[key];
+  const isLI = key==='li';
+  const content = isLI?(arr[i].post||arr[i].tweet):arr[i].tweet;
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner" style="border-top-color:#a78bfa"></span>';
+  box.style.display='none';
+
+  try {
+    const result = await callAPIObj(IMG_SYSTEM, `Generate an image prompt for this post:\n\n"${content}"`);
+    const prompt = result.prompt;
+    box.innerHTML = `
+      <div class="img-box">
+        <div class="img-box-label">🖼 Image Prompt — paste into Ideogram or ChatGPT</div>
+        <div class="img-box-prompt">${prompt}</div>
+        <div class="img-box-actions">
+          <button class="img-action-btn btn-copy-prompt" id="${key}-promptcopy-${i}" onclick="copyPrompt('${key}',${i},this)">Copy Prompt</button>
+          <a class="img-action-btn btn-ideogram" href="https://ideogram.ai" target="_blank">Open Ideogram ↗</a>
+          <a class="img-action-btn btn-chatgpt" href="https://chatgpt.com" target="_blank">Open ChatGPT ↗</a>
+        </div>
+      </div>`;
+    box.style.display='block';
+    // store prompt for copy
+    arr[i]._imgPrompt = prompt;
+  } catch(e) {
+    box.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:10px">Something went wrong — try again.</div>';
+    box.style.display='block';
+  } finally {
+    btn.disabled=false;
+    btn.innerHTML='🖼 Image Prompt';
+  }
+}
+
+function copyPrompt(key, i, btn) {
+  const prompt = data[key][i]._imgPrompt;
+  if (!prompt) return;
+  navigator.clipboard.writeText(prompt);
+  btn.textContent='✓ Copied!';
+  setTimeout(()=>{ btn.textContent='Copy Prompt'; },2000);
+}
+
+// ── ORIGINAL TWEETS ──
+async function generateOriginal() {
+  busy('genBtn','orig-loading',true,'<span>⚡</span> Research & Draft Today\'s Tweets','Researching & drafting...');
+  document.getElementById('orig-error').style.display='none';
+  document.getElementById('orig-cards').innerHTML='';
+  document.getElementById('orig-footer').style.display='none';
+  try {
+    data.orig = await callAPI(ORIG_SYSTEM,'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 5 tweets in my voice — mix of types. Punchy, human, worth reading.');
+    renderCards(data.orig,'orig','orig-cards','orig-footer');
+  } catch(e) {
+    document.getElementById('orig-error').textContent='Something went wrong — try again.';
+    document.getElementById('orig-error').style.display='block';
+  } finally {
+    busy('genBtn','orig-loading',false,'<span>⚡</span> Research & Draft Today\'s Tweets','');
+  }
+}
+
+// ── WATCH LIST ──
+async function loadWatchList() {
+  busy('watchBtn','watch-loading',true,'<span>👥</span> Fetch Watch List Tweets','Fetching tweets from your watch list...');
+  document.getElementById('watch-error').style.display='none';
+  document.getElementById('watch-list').innerHTML='';
+  document.getElementById('step-reply').style.display='none';
+
+  const since = hoursAgo(24);
+  const allTweets = [];
+  const tier1 = WATCH_ACCOUNTS.filter(a=>a.tier===1);
+  const tier2 = WATCH_ACCOUNTS.filter(a=>a.tier===2);
+
+  // Fetch tier 1 first, then tier 2
+  for (const acct of [...tier1, ...tier2]) {
+    try {
+      const data = await fetchXSearch('from:' + acct.handle, 5, since);
+      if (data.data && data.data.length > 0) {
+        const users = {};
+        (data.includes && data.includes.users || []).forEach(u => users[u.id] = u);
+        // Build media lookup
+        const mediaMap = {};
+        (data.includes && data.includes.media || []).forEach(m => {
+          mediaMap[m.media_key] = {
+            type: m.type,
+            url: m.url || m.preview_image_url || (m.variants && m.variants[0]?.url) || null
+          };
+        });
+
+        for (const t of data.data.slice(0,5)) {
+          // Get media if present
+          const mediaKeys = t.attachments?.media_keys || [];
+          let mediaUrl = null;
+          let mediaType = null;
+          if (mediaKeys.length > 0 && mediaMap[mediaKeys[0]]) {
+            mediaType = mediaMap[mediaKeys[0]].type;
+            mediaUrl = mediaMap[mediaKeys[0]].url;
+          }
+
+          // Expand t.co URLs if present
+          let tweetText = t.text;
+          let linkContext = '';
+          const urls = t.entities?.urls || [];
+          for (const u of urls) {
+            if (u.expanded_url && !u.expanded_url.includes('twitter.com') && !u.expanded_url.includes('x.com')) {
+              try {
+                const r = await fetch('/expand-url', {
+                  method: 'POST',
+                  headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({url: u.expanded_url})
+                });
+                const d = await r.json();
+                if (d.summary) linkContext = d.summary;
+                if (d.title) tweetText = tweetText.replace(u.url, '[Link: ' + d.title + ']');
+                else tweetText = tweetText.replace(u.url, '[Link: ' + u.expanded_url + ']');
+              } catch(e) {
+                tweetText = tweetText.replace(u.url, '[Link: ' + u.expanded_url + ']');
+              }
+            } else {
+              tweetText = tweetText.replace(u.url, '');
+            }
+          }
+
+          allTweets.push({
+            id: t.id,
+            tweet: tweetText.trim(),
+            linkContext,
+            author: '@' + acct.handle,
+            name: users[t.author_id] ? users[t.author_id].name : acct.handle,
+            topic: acct.topic,
+            tier: acct.tier,
+            likes: t.public_metrics?.like_count || 0,
+            replies: t.public_metrics?.reply_count || 0,
+            created_at: t.created_at,
+          });
+        }
+      }
+    } catch(e) { console.log('Failed for', acct.handle, e.message); }
+  }
+
+  if (allTweets.length === 0) {
+    document.getElementById('watch-error').textContent = 'No tweets found in the last 12 hours. Your watch list may not have posted recently, or there was an API error. Check the browser console for details.';
+    document.getElementById('watch-error').style.display='block';
+    busy('watchBtn','watch-loading',false,'<span>👥</span> Fetch Watch List Tweets','');
+    return;
+  }
+
+  // Sort: tier 1 first, then by engagement
+  allTweets.sort((a,b) => {
+    if (a.tier !== b.tier) return a.tier - b.tier;
+    return (b.likes + b.replies*2) - (a.likes + a.replies*2);
+  });
+
+  trending = allTweets; // reuse trending array for reply drafting
+
+  const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
+  document.getElementById('watch-list').innerHTML = allTweets.map((t,i) => {
+    const c = topicColors2[t.topic]||'#555';
+    const eng = t.likes > 0 ? t.likes.toLocaleString() + ' likes' : 'Recent';
+    const tierLabel = t.tier === 1 ? '' : '<span class="tier2-badge">watch</span>';
+    const timeAgo = t.created_at ? getTimeAgo(t.created_at) : '';
+    return `<div class="trending-card" id="tc-${i}" onclick="selectTrending(${i})" style="animation-delay:${i*.05}s">
+      <div class="trending-meta">
+        <a href="https://x.com/${t.author.replace('@','')}" target="_blank" class="trending-source" style="color:#f472b6;text-decoration:none;font-weight:600" onclick="event.stopPropagation()">${t.author}</a>
+        <span class="trending-topic-tag" style="color:${c}">${t.topic}</span>
+        ${tierLabel}
+        <span class="trending-source" style="color:#333;margin-left:auto">${timeAgo} · ${eng}</span>
+      </div>
+      <div class="trending-text">${t.tweet.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      ${t.mediaUrl ? `<img src="${t.mediaUrl}" style="max-height:120px;max-width:100%;border-radius:8px;margin-top:10px;object-fit:cover;opacity:0.85" onerror="this.style.display='none'">` : ''}
+    </div>`;
+  }).join('');
+
+  busy('watchBtn','watch-loading',false,'<span>👥</span> Fetch Watch List Tweets','');
+}
+
+function getTimeAgo(iso) {
+  const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (mins < 60) return mins + 'm ago';
+  return Math.floor(mins/60) + 'h ago';
+}
+
+function switchReplySource(name, el) {
+  document.querySelectorAll('.rsTab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('rs-watch').style.display = name==='watch' ? 'block' : 'none';
+  document.getElementById('rs-trend').style.display = name==='trend' ? 'block' : 'none';
+  document.getElementById('step-reply').style.display = 'none';
+}
+
+// ── TRENDING (Real X API) ──
+const TRENDING_QUERIES = [
+  { q: '(AI OR "artificial intelligence") min_faves:200', topic: 'Tech & AI' },
+  { q: '(marketing OR branding OR "brand strategy") min_faves:200', topic: 'Brand & Marketing' },
+  { q: '(gaming OR "creator economy" OR "pop culture") min_faves:200', topic: 'Culture & Media' },
+];
+
+async function findTrending() {
+  busy('trendBtn','trend-loading',true,'<span>🔍</span> Find Trending Tweets to Reply To','Fetching real tweets from X...');
+  document.getElementById('trend-error').style.display='none';
+  document.getElementById('trending-list').innerHTML='';
+  try {
+    // Fetch real tweets across our three topic areas
+    const allTweets = [];
+    for (const q of TRENDING_QUERIES) {
+      try {
+        const data = await fetchXTweets(q.q, 5);
+        if (data.data && data.includes) {
+          const users = {};
+          (data.includes.users || []).forEach(u => users[u.id] = u);
+          data.data.forEach(t => {
+            allTweets.push({
+              id: t.id,
+              tweet: t.text,
+              author: users[t.author_id] ? '@' + users[t.author_id].username : '@unknown',
+              name: users[t.author_id] ? users[t.author_id].name : 'Unknown',
+              topic: q.topic,
+              likes: t.public_metrics?.like_count || 0,
+              replies: t.public_metrics?.reply_count || 0,
+            });
+          });
+        }
+      } catch(e) { console.log('Query failed:', q.q, e); }
+    }
+
+    if (allTweets.length === 0) throw new Error('No tweets found');
+
+    // Sort by engagement and take top 8
+    allTweets.sort((a,b) => (b.likes + b.replies*2) - (a.likes + a.replies*2));
+    trending = allTweets.slice(0, 8);
+
+    const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
+    document.getElementById('trending-list').innerHTML = trending.map((t,i) => {
+      const c = topicColors2[t.topic] || '#555';
+      const eng = t.likes > 0 ? `${t.likes.toLocaleString()} likes` : 'Recent';
+      const handle = t.author && t.author.startsWith('@') ? t.author : '@' + (t.author||'');
+      return `<div class="trending-card" id="tc-${i}" onclick="selectTrending(${i})" style="animation-delay:${i*.07}s">
+        <div class="trending-meta">
+          <a href="https://x.com/${handle.replace('@','')}" target="_blank" class="trending-source" style="color:#f472b6;text-decoration:none;font-weight:600" onclick="event.stopPropagation()">${handle}</a>
+          <span class="trending-topic-tag" style="color:${c}">${t.topic}</span>
+          <span class="trending-source" style="color:#444">${eng}</span>
+        </div>
+        <div class="trending-text">${t.tweet.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        <div style="margin-top:10px">
+          <button class="btn-edit" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();rewriteInMyVoice(${i})">✍️ Rewrite in My Voice</button>
+        </div>
+        <div id="rewrite-box-${i}" style="display:none;margin-top:10px"></div>
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    // Fallback to web search if X API fails
+    console.warn('X API failed, falling back to web search:', e);
+    try {
+      trending = await callAPI(TRENDING_SYSTEM,'Search the web RIGHT NOW for the hottest conversations and debates in Tech & AI, Culture & Media, and Brand & Marketing. What are people arguing about, reacting to, or talking about today?');
+      const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
+      document.getElementById('trending-list').innerHTML = trending.map((t,i)=>{
+        const c=topicColors2[t.topic]||'#555';
+        const handle2 = t.author && t.author.startsWith('@') ? t.author : '@' + (t.author||'');
+        return `<div class="trending-card" id="tc-${i}" onclick="selectTrending(${i})" style="animation-delay:${i*.07}s">
+          <div class="trending-meta">
+            <a href="https://x.com/${handle2.replace('@','')}" target="_blank" class="trending-source" style="color:#f472b6;text-decoration:none;font-weight:600" onclick="event.stopPropagation()">${handle2}</a>
+            <span class="trending-topic-tag" style="color:${c}">${t.topic}</span>
+            <span class="trending-source" style="color:#2a2a2a">${t.engagement}</span>
+          </div>
+          <div class="trending-text">${t.tweet}</div>
+          <div style="margin-top:10px">
+            <button class="btn-edit" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();rewriteInMyVoice(${i})">✍️ Rewrite in My Voice</button>
+          </div>
+          <div id="rewrite-box-${i}" style="display:none;margin-top:10px"></div>
+        </div>`;
+      }).join('');
+    } catch(e2) {
+      document.getElementById('trend-error').textContent='Could not load tweets. Check your connection and try again.';
+      document.getElementById('trend-error').style.display='block';
+    }
+  } finally {
+    busy('trendBtn','trend-loading',false,'<span>🔍</span> Find Trending Tweets to Reply To','');
+  }
+}
+
+function selectTrending(i) {
+  selected=trending[i];
+  document.querySelectorAll('.trending-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById(`tc-${i}`).classList.add('selected');
+  document.getElementById('selected-preview').innerHTML=`<span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted)">TOPIC — ${selected.author}</span><br><br>${selected.tweet}`;
+  document.getElementById('step-reply').style.display='block';
+  document.getElementById('reply-cards').innerHTML='';
+  document.getElementById('reply-footer').style.display='none';
+  document.getElementById('step-reply').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function rewriteInMyVoice(i) {
+  const t = trending[i];
+  const box = document.getElementById(`rewrite-box-${i}`);
+  const btn = document.querySelector(`#tc-${i} .btn-edit`);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-top-color:#a78bfa"></span>';
+  box.style.display = 'none';
+  try {
+    const result = await callAPIObj(REWRITE_SYSTEM, `Take this trending topic and rewrite it as an original post in Matt's voice:\n\n"${t.tweet}"\n\nSource: ${t.author}`);
+    box.innerHTML = `
+      <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:14px;margin-top:4px">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:#a78bfa;margin-bottom:10px">✍️ REWRITTEN IN YOUR VOICE</div>
+        <div style="font-size:14px;line-height:1.7;color:#e0e0e0;margin-bottom:12px">${result.tweet}</div>
+        <div style="font-size:11px;color:#555;margin-bottom:10px">💡 ${result.angle}</div>
+        <button class="btn-copy" onclick="navigator.clipboard.writeText('${result.tweet.replace(/'/g,"\\'")}');this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button>
+      </div>`;
+    box.style.display = 'block';
+  } catch(e) {
+    box.innerHTML = '<div style="color:var(--red);font-size:12px;margin-top:8px">Something went wrong — try again.</div>';
+    box.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✍️ Rewrite in My Voice';
+}
+
+async function generateReply() {
+  if (!selected) return;
+  busy('replyBtn','reply-loading',true,'<span>↩</span> Draft Reply in My Voice','Drafting your reply...');
+  document.getElementById('reply-error').style.display='none';
+  document.getElementById('reply-cards').innerHTML='';
+  document.getElementById('reply-footer').style.display='none';
+  try {
+    const replyCtx = selected.linkContext ? `\n\nLinked article context: ${selected.linkContext}` : '';
+    data.reply = await callAPI(REPLY_SYSTEM,`Write 3 reply options to this:\n\n"${selected.tweet}"${replyCtx}\n\nSource: ${selected.author}`,false);
+    renderCards(data.reply,'reply','reply-cards','reply-footer');
+  } catch(e) {
+    document.getElementById('reply-error').textContent='Something went wrong — try again.';
+    document.getElementById('reply-error').style.display='block';
+  } finally {
+    busy('replyBtn','reply-loading',false,'<span>↩</span> Draft Reply in My Voice','');
+  }
+}
+
+function resetReply() {
+  selected=null;
+  document.querySelectorAll('.trending-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('step-reply').style.display='none';
+  document.getElementById('reply-cards').innerHTML='';
+}
+
+async function generatePastedReply() {
+  const text=document.getElementById('pastedTweet').value.trim();
+  if (!text) return;
+  busy('pasteBtn','paste-loading',true,'<span>↩</span> Draft Reply to This Tweet','Drafting your reply...');
+  document.getElementById('paste-error').style.display='none';
+  document.getElementById('paste-cards').innerHTML='';
+  document.getElementById('paste-footer').style.display='none';
+  try {
+    data.paste = await callAPI(REPLY_SYSTEM,`Write 3 reply options to this tweet:\n\n"${text}"`,false);
+    renderCards(data.paste,'paste','paste-cards','paste-footer');
+  } catch(e) {
+    document.getElementById('paste-error').textContent='Something went wrong — try again.';
+    document.getElementById('paste-error').style.display='block';
+  } finally {
+    busy('pasteBtn','paste-loading',false,'<span>↩</span> Draft Reply to This Tweet','');
+  }
+}
+
+// ── LINKEDIN ──
+async function generateLinkedIn() {
+  busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Researching & drafting for LinkedIn...');
+  document.getElementById('li-error').style.display='none';
+  document.getElementById('li-cards').innerHTML='';
+  document.getElementById('li-footer').style.display='none';
+  try {
+    data.li = await callAPI(LINKEDIN_SYSTEM,'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 3 LinkedIn posts in my voice. First line must hook. End with something inviting a response.');
+    renderCards(data.li,'li','li-cards','li-footer',true);
+  } catch(e) {
+    document.getElementById('li-error').textContent='Something went wrong — try again.';
+    document.getElementById('li-error').style.display='block';
+  } finally {
+    busy('liBtn','li-loading',false,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','');
+  }
+}
+
+function checkPassword() {
+  const input = document.getElementById('gate-input').value;
+  fetch('/check-password', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({password: input})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      sessionStorage.setItem('ss_auth', '1');
+    } else {
+      document.getElementById('gate-error').style.display = 'block';
+      document.getElementById('gate-input').value = '';
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('ss_auth') === '1') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+  }
+});
+</script>
+</div>
+</body>
+</html>
