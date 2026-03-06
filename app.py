@@ -70,6 +70,8 @@ def anthropic_proxy():
             timeout=120
         )
         cors_headers['Content-Type'] = 'application/json'
+        if resp.status_code != 200:
+            print(f"Anthropic error {resp.status_code}: {resp.text}", flush=True)
         return Response(resp.content, status=resp.status_code, headers=cors_headers)
     except Exception as e:
         cors_headers['Content-Type'] = 'application/json'
