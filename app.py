@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import os
 import json
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__)
 
 @app.route('/')
 def index():
