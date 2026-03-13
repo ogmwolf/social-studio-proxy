@@ -25,7 +25,9 @@ def check_password():
     password = data.get('password', '')
     correct = os.environ.get('APP_PASSWORD', '')
     if password == correct:
-        return Response('{"ok": true}', mimetype='application/json')
+        bearer_token = os.environ.get('X_BEARER_TOKEN', '')
+        payload = json.dumps({'ok': True, 'bearer_token': bearer_token})
+        return Response(payload, mimetype='application/json')
     return Response('{"ok": false}', mimetype='application/json')
 
 @app.route('/expand-url', methods=['POST'])
