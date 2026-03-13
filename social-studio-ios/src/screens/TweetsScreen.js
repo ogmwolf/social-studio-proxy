@@ -3,6 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
 import { ORIG_SYSTEM } from '../constants/prompts';
 import PostCard from '../components/PostCard';
@@ -11,9 +12,9 @@ import { colors } from '../constants/theme';
 const PROMPT_MSG = `Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 5 tweets in my voice — mix of types. Punchy, human, worth reading.`;
 
 export default function TweetsScreen() {
-  const [cards, setCards]   = useState([]);
+  const [cards, setCards]     = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState('');
+  const [error, setError]     = useState('');
 
   async function generate() {
     setLoading(true);
@@ -23,19 +24,21 @@ export default function TweetsScreen() {
       const results = await callAPI(ORIG_SYSTEM, PROMPT_MSG, true);
       setCards(results);
     } catch (e) {
-      setError('Something went wrong — try again.');
-      console.error('TweetsScreen error:', e);
+      setError(e.message === 'Request timed out — try again.' ? e.message : 'Generation failed. Check your connection and try again.');
+      console.error('[Tweets] Error:', e);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
+
         <View style={styles.header}>
           <View style={styles.eyebrow}>
             <View style={styles.dot} />
@@ -53,20 +56,29 @@ export default function TweetsScreen() {
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={generate}
           disabled={loading}
-          activeOpacity={0.8}
+          activeOpacity={0.85}
         >
-          {loading
-            ? (
-              <View style={styles.buttonInner}>
-                <ActivityIndicator color={colors.bg} size="small" />
-                <Text style={styles.buttonText}>Researching...</Text>
-              </View>
-            )
-            : <Text style={styles.buttonText}>Generate Tweets</Text>
-          }
+          {loading ? (
+            <View style={styles.buttonInner}>
+              <ActivityIndicator color={colors.bg} size="small" />
+              <Text style={styles.buttonText}>Searching the web...</Text>
+            </View>
+          ) : (
+            <Text style={styles.buttonText}>Research & Draft Tweets</Text>
+          )}
         </TouchableOpacity>
 
-        {!!error && <Text style={styles.error}>{error}</Text>}
+        {!!error && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
+        {loading && (
+          <Text style={styles.loadingHint}>
+            Researching today's news and drafting in your voice...
+          </Text>
+        )}
 
         {cards.length > 0 && (
           <View style={styles.cards}>
@@ -78,11 +90,12 @@ export default function TweetsScreen() {
 
         {cards.length > 0 && (
           <Text style={styles.footer}>
-            Copy → paste into X/Twitter → schedule or post when ready
+            Copy → paste into X/Twitter → post when ready
           </Text>
         )}
+
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -92,18 +105,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   scroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 60,
   },
+
   header: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   eyebrow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
     gap: 8,
+    marginBottom: 14,
   },
   dot: {
     width: 6,
@@ -112,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue,
   },
   eyebrowText: {
-    fontFamily: 'DM_Mono_500Medium',
+    fontFamily: 'DMMono_500Medium',
     fontSize: 10,
     letterSpacing: 3,
     color: colors.muted,
@@ -120,24 +134,25 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'Syne_800ExtraBold',
-    fontSize: 28,
+    fontSize: 32,
     color: colors.text,
-    lineHeight: 32,
-    marginBottom: 8,
+    lineHeight: 36,
+    marginBottom: 10,
   },
   headingAccent: {
     color: colors.blue,
   },
   subtitle: {
     fontFamily: 'DMSans_400Regular',
-    fontSize: 13,
+    fontSize: 14,
     color: colors.muted,
-    lineHeight: 20,
+    lineHeight: 21,
   },
+
   button: {
     backgroundColor: colors.blue,
-    borderRadius: 10,
-    paddingVertical: 16,
+    borderRadius: 12,
+    paddingVertical: 17,
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -154,22 +169,43 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.bg,
   },
-  error: {
-    fontFamily: 'DM_Mono_500Medium',
-    fontSize: 11,
+
+  errorBox: {
+    backgroundColor: '#1a0808',
+    borderWidth: 1,
+    borderColor: '#ff4b2b44',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 13,
     color: colors.red,
-    marginBottom: 16,
+    lineHeight: 19,
   },
-  cards: {
-    gap: 12,
-  },
-  footer: {
-    fontFamily: 'DM_Mono_500Medium',
-    fontSize: 10,
+
+  loadingHint: {
+    fontFamily: 'DMMono_500Medium',
+    fontSize: 11,
     color: colors.muted,
+    letterSpacing: 0.5,
+    textAlign: 'center',
+    paddingVertical: 24,
+  },
+
+  cards: {
+    gap: 14,
+  },
+
+  footer: {
+    fontFamily: 'DMMono_500Medium',
+    fontSize: 10,
+    color: '#2a2a2a',
     letterSpacing: 1,
     textTransform: 'uppercase',
     textAlign: 'center',
-    marginTop: 24,
+    marginTop: 28,
   },
 });

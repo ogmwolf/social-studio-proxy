@@ -15,17 +15,23 @@ export function AuthProvider({ children }) {
   // On mount: restore session from SecureStore if it exists.
   useEffect(() => {
     (async () => {
+      console.log('[AuthContext] Reading session from SecureStore…');
       try {
         const auth   = await SecureStore.getItemAsync(STORE_KEY_AUTH);
         const token  = await SecureStore.getItemAsync(STORE_KEY_TOKEN);
         if (auth === 'true' && token) {
           setBearerToken(token);
           setIsAuthenticated(true);
+          console.log('[AuthContext] Session restored — token length:', token.length);
+        } else {
+          console.log('[AuthContext] No saved session (auth=%s, token=%s) — showing login', auth, token == null ? 'null' : `"${token}"`);
         }
-      } catch (_) {
+      } catch (e) {
         // SecureStore read failure — treat as unauthenticated.
+        console.log('[AuthContext] SecureStore error:', e);
       } finally {
         setLoading(false);
+        console.log('[AuthContext] Loading complete');
       }
     })();
   }, []);
@@ -45,6 +51,7 @@ export function AuthProvider({ children }) {
       await SecureStore.setItemAsync(STORE_KEY_TOKEN, data.bearer_token);
       setBearerToken(data.bearer_token);
       setIsAuthenticated(true);
+      console.log('[AuthContext] Login OK — bearer token stored, length:', data.bearer_token.length);
       return { success: true };
     }
 
@@ -52,6 +59,7 @@ export function AuthProvider({ children }) {
     if (data.ok) {
       await SecureStore.setItemAsync(STORE_KEY_AUTH, 'true');
       setIsAuthenticated(true);
+      console.warn('[AuthContext] Login OK but NO bearer_token in response — X API calls will fail');
       return { success: true };
     }
 

@@ -4,6 +4,10 @@
 import { BASE_URL } from './proxy';
 
 export async function fetchXSearch(query, bearerToken, maxResults = 5, startTime = null) {
+  if (!bearerToken) {
+    throw new Error('No bearer token — check that /check-password returned one and SecureStore saved it');
+  }
+  console.log('[Twitter] fetchXSearch query=%s token_length=%d', query.slice(0, 40), bearerToken.length);
   const params = new URLSearchParams({
     query: query + ' -is:retweet -is:reply lang:en',
     max_results: Math.max(10, maxResults),

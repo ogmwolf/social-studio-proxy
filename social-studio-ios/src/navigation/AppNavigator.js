@@ -1,44 +1,32 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../auth/AuthContext';
-import LoginScreen   from '../screens/LoginScreen';
-import TweetsScreen  from '../screens/TweetsScreen';
-import ReplyScreen   from '../screens/ReplyScreen';
+import LoginScreen    from '../screens/LoginScreen';
+import TweetsScreen   from '../screens/TweetsScreen';
+import ReplyScreen    from '../screens/ReplyScreen';
 import LinkedInScreen from '../screens/LinkedInScreen';
-import { colors }    from '../constants/theme';
+import { colors }     from '../constants/theme';
 
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ label, color }) {
-  // Simple text-based tab icons — no icon library dependency.
-  const icons = { Tweets: '✦', Reply: '↩', LinkedIn: 'in' };
+// Minimal indicator — a small dot only when active, invisible space when not.
+function TabDot({ focused, color }) {
   return (
-    <View style={{ alignItems: 'center' }}>
-      <View style={{
-        width: 28, height: 28, borderRadius: 8,
-        backgroundColor: color === colors.blue ? `${colors.blue}22` : 'transparent',
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <View style={{
-          width: 8, height: 8, borderRadius: 4,
-          backgroundColor: color,
-        }} />
-      </View>
-    </View>
+    <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: focused ? color : 'transparent' }} />
   );
 }
 
 export default function AppNavigator() {
   const { isAuthenticated, loading } = useAuth();
 
-  // Show nothing while SecureStore is being read on launch.
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator color={colors.blue} />
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator color={colors.blue} size="small" />
+      </SafeAreaView>
     );
   }
 
@@ -53,43 +41,26 @@ export default function AppNavigator() {
           headerShown: false,
           tabBarStyle: {
             backgroundColor: colors.surface,
-            borderTopColor: colors.border,
             borderTopWidth: 1,
-            height: 80,
-            paddingBottom: 20,
+            borderTopColor: colors.border,
           },
           tabBarActiveTintColor:   colors.blue,
-          tabBarInactiveTintColor: colors.muted,
+          tabBarInactiveTintColor: '#333333',
           tabBarLabelStyle: {
-            fontFamily: 'DM_Mono_500Medium',
+            fontFamily: 'DMMono_500Medium',
             fontSize: 10,
-            letterSpacing: 1,
+            letterSpacing: 1.5,
             textTransform: 'uppercase',
-            marginTop: 2,
+          },
+          tabBarIcon: ({ focused, color }) => <TabDot focused={focused} color={color} />,
+          tabBarItemStyle: {
+            paddingTop: 6,
           },
         })}
       >
-        <Tab.Screen
-          name="Tweets"
-          component={TweetsScreen}
-          options={{
-            tabBarIcon: ({ color }) => <TabIcon label="Tweets" color={color} />,
-          }}
-        />
-        <Tab.Screen
-          name="Reply"
-          component={ReplyScreen}
-          options={{
-            tabBarIcon: ({ color }) => <TabIcon label="Reply" color={color} />,
-          }}
-        />
-        <Tab.Screen
-          name="LinkedIn"
-          component={LinkedInScreen}
-          options={{
-            tabBarIcon: ({ color }) => <TabIcon label="LinkedIn" color={color} />,
-          }}
-        />
+        <Tab.Screen name="Tweets"   component={TweetsScreen}   />
+        <Tab.Screen name="Reply"    component={ReplyScreen}    />
+        <Tab.Screen name="LinkedIn" component={LinkedInScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
