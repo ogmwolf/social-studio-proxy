@@ -129,10 +129,10 @@ export default function ReplyScreen() {
   const { bearerToken } = useAuth();
   const [mode, setMode] = useState('watchlist');
 
-  const [watchTweets, setWatchTweets] = useState([]);
-  const [trendTweets, setTrendTweets] = useState([]);
-  const [watchIdx, setWatchIdx]       = useState(null);
-  const [trendIdx, setTrendIdx]       = useState(null);
+  const [watchTweets, setWatchTweets]         = useState([]);
+  const [trendTweets, setTrendTweets]         = useState([]);
+  const [watchSelectedId, setWatchSelectedId] = useState(null); // tweet.id — stable through re-sorts
+  const [trendIdx, setTrendIdx]               = useState(null); // index OK: Trending arrives all at once
   const [pasteText, setPasteText]     = useState('');
   const [replyCards, setReplyCards]   = useState([]);
 
@@ -149,16 +149,19 @@ export default function ReplyScreen() {
   }
 
   const currentTweets = mode === 'watchlist' ? watchTweets : trendTweets;
-  const currentIdx    = mode === 'watchlist' ? watchIdx : trendIdx;
-  const setCurrentIdx = mode === 'watchlist' ? setWatchIdx : setTrendIdx;
-  const selected      = currentTweets[currentIdx] ?? null;
-  const canDraft      = mode === 'paste' ? pasteText.trim().length > 0 : selected !== null;
+  // Watch List: look up by ID so progressive re-sorts don't shift the selection.
+  // Trending: index-safe (full list arrives atomically; Claude fallback lacks IDs).
+  const selected =
+    mode === 'watchlist' ? (watchTweets.find(t => t.id === watchSelectedId) ?? null)
+    : mode === 'trending' ? (trendTweets[trendIdx] ?? null)
+    : null;
+  const canDraft = mode === 'paste' ? pasteText.trim().length > 0 : selected !== null;
 
   async function fetchWatchList() {
     setFetchLoading(true);
     setFetchError('');
     setWatchTweets([]);
-    setWatchIdx(null);
+    setWatchSelectedId(null);
     setReplyCards([]);
 
     const since = hoursAgo(24);
@@ -244,7 +247,7 @@ export default function ReplyScreen() {
         setTrendTweets(results);
       }
     } catch (e) {
-      setFetchError('Could not load tweets. Check your connection and try again.');
+      setFetchError(e.message.includes('timed out') ? 'Request timed out — try again.' : 'Could not load tweets. Check your connection and try again.');
       console.error('[Trending] Error:', e);
     }
     setFetchLoading(false);
@@ -362,9 +365,10 @@ export default function ReplyScreen() {
                     <TweetCard
                       key={tweet.id || i}
                       tweet={tweet}
-                      isSelected={currentIdx === i}
+                      isSelected={mode === 'watchlist' ? tweet.id === watchSelectedId : trendIdx === i}
                       onPress={() => {
-                        setCurrentIdx(i);
+                        if (mode === 'watchlist') setWatchSelectedId(tweet.id);
+                        else setTrendIdx(i);
                         setReplyCards([]);
                         setReplyError('');
                       }}
