@@ -200,7 +200,7 @@
 </div>
 
 <script>
-const X_BEARER = '%%BEARER_TOKEN%%';
+let X_BEARER = '';
 
 // Watched accounts — Tier 1 daily targets, Tier 2 watch list
 const WATCH_ACCOUNTS = [
@@ -881,9 +881,11 @@ function checkPassword() {
     body: JSON.stringify({password: input})
   }).then(r => r.json()).then(d => {
     if (d.ok) {
+      X_BEARER = d.bearer_token || '';
+      sessionStorage.setItem('ss_auth', '1');
+      sessionStorage.setItem('ss_bearer', X_BEARER);
       document.getElementById('gate').style.display = 'none';
       document.getElementById('main-app').style.display = 'block';
-      sessionStorage.setItem('ss_auth', '1');
     } else {
       document.getElementById('gate-error').style.display = 'block';
       document.getElementById('gate-input').value = '';
@@ -893,6 +895,7 @@ function checkPassword() {
 
 window.addEventListener('DOMContentLoaded', () => {
   if (sessionStorage.getItem('ss_auth') === '1') {
+    X_BEARER = sessionStorage.getItem('ss_bearer') || '';
     document.getElementById('gate').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
   }
