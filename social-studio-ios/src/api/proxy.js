@@ -1,7 +1,7 @@
 // Central config for all backend calls.
 // Change BASE_URL here to switch environments.
 
-export const BASE_URL = 'https://social-studio-proxy.onrender.com';
+export const BASE_URL = 'https://social-studio-proxy.vercel.app';
 
 export async function proxyFetch(path, options = {}) {
   const url = `${BASE_URL}${path}`;
