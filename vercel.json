@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/check-password",        "destination": "/api/check-password" },
+    { "source": "/proxy/anthropic",        "destination": "/api/proxy/anthropic" },
+    { "source": "/2/tweets/search/recent", "destination": "/api/tweets/search" },
+    { "source": "/expand-url",             "destination": "/api/expand-url" },
+    { "source": "/img-proxy",              "destination": "/api/img-proxy" }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  }
+}
