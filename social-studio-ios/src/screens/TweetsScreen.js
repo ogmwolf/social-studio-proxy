@@ -5,23 +5,27 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { ORIG_SYSTEM } from '../constants/prompts';
+import { ORIG_SYSTEM, buildSystemPrompt, buildResearchMsg } from '../constants/prompts';
+import TovSelector from '../components/TovSelector';
+import TopicSelector from '../components/TopicSelector';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
-
-const PROMPT_MSG = `Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 5 tweets in my voice — mix of types. Punchy, human, worth reading.`;
 
 export default function TweetsScreen() {
   const [cards, setCards]     = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [tov, setTov]         = useState(null);
+  const [topic, setTopic]     = useState(null);
 
   async function generate() {
     setLoading(true);
     setError('');
     setCards([]);
     try {
-      const results = await callAPI(ORIG_SYSTEM, PROMPT_MSG, true);
+      const system = buildSystemPrompt(ORIG_SYSTEM, { tov, topic });
+      const msg = buildResearchMsg(topic) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+      const results = await callAPI(system, msg, true);
       setCards(results);
     } catch (e) {
       setError(e.message === 'Request timed out — try again.' ? e.message : 'Generation failed. Check your connection and try again.');
@@ -48,9 +52,12 @@ export default function TweetsScreen() {
             What's worth{'\n'}<Text style={styles.headingAccent}>saying today</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Researches today's news. Drafts 5 tweets in your voice across three categories.
+            Researches today's news. Drafts tweets in your voice across three categories.
           </Text>
         </View>
+
+        <TovSelector value={tov} onChange={setTov} />
+        <TopicSelector value={topic} onChange={setTopic} />
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}

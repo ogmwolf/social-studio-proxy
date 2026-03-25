@@ -5,31 +5,38 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM } from '../constants/prompts';
+import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM, buildSystemPrompt, buildResearchMsg } from '../constants/prompts';
+import TovSelector from '../components/TovSelector';
+import TopicSelector from '../components/TopicSelector';
+import LengthSelector from '../components/LengthSelector';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
 
-const RESEARCH_MSG = `Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing.`;
-
 function buildGenerationPrompt(topics) {
+  const count = topics.length === 1 ? '1 LinkedIn post' : `${topics.length} LinkedIn posts, one per topic`;
   const lines = topics.map((t, i) => `${i + 1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
-  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nWrite 3 LinkedIn posts in my voice, one per topic. First line must hook. End with something inviting a response.`;
+  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nWrite ${count} in my voice. First line must hook. End with something inviting a response.`;
 }
 
 export default function LinkedInScreen() {
-  const [cards, setCards] = useState([]);
-  const [phase, setPhase] = useState(null); // null | 'researching' | 'drafting'
-  const [error, setError] = useState('');
+  const [cards, setCards]     = useState([]);
+  const [phase, setPhase]     = useState(null); // null | 'researching' | 'drafting'
+  const [error, setError]     = useState('');
+  const [tov, setTov]         = useState(null);
+  const [topic, setTopic]     = useState(null);
+  const [liLength, setLiLength] = useState('medium');
 
   async function generate() {
     setPhase('researching');
     setError('');
     setCards([]);
     try {
-      const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, RESEARCH_MSG, true, 800);
+      const researchMsg = buildResearchMsg(topic);
+      const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, researchMsg, true, 800);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setPhase('drafting');
-      const results = await callAPI(LINKEDIN_SYSTEM, buildGenerationPrompt(topics), false);
+      const system = buildSystemPrompt(LINKEDIN_SYSTEM, { tov, length: liLength, topic });
+      const results = await callAPI(system, buildGenerationPrompt(topics), false);
       setCards(results);
     } catch (e) {
       setError(e.message === 'Request timed out — try again.' ? e.message : 'Generation failed. Check your connection and try again.');
@@ -56,9 +63,13 @@ export default function LinkedInScreen() {
             Long-form{'\n'}<Text style={styles.headingAccent}>in your voice</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Researches today's news. Drafts 3 LinkedIn posts across three categories.
+            Researches today's news. Drafts LinkedIn posts in your voice.
           </Text>
         </View>
+
+        <TovSelector value={tov} onChange={setTov} />
+        <TopicSelector value={topic} onChange={setTopic} />
+        <LengthSelector value={liLength} onChange={setLiLength} />
 
         <TouchableOpacity
           style={[styles.button, !!phase && styles.buttonDisabled]}

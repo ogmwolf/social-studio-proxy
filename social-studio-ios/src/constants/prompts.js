@@ -30,8 +30,8 @@ HIS WORLD: Gaming, esports, creator economy, brand marketing, culture, AI, platf
 
 export const ORIG_SYSTEM = VOICE + `
 
-TASK: Write 5 original tweets based on today's news.
-Return JSON array of exactly 5 objects:
+TASK: Write 3 original tweets based on today's news — one per topic across Tech & AI, Culture & Media, and Brand & Marketing.
+Return JSON array of exactly 3 objects:
 - "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
@@ -74,7 +74,7 @@ Rules:
 - Can show career reflection — Matt is in job search mode
 - No bullet listicles — real paragraphs
 - No quotes from famous people — sounds dated
-- End with a question or sharp observation that invites comments
+- End naturally. Sometimes a question, sometimes a sharp observation, sometimes just stop. Never force an ending.
 - 2-3 hashtags at end
 - Never use em dashes (--) or hyphens to connect clauses. Use commas or periods instead. This is critical.
 - Never use italic, bold, or any markdown formatting. Plain text only.
@@ -127,3 +127,54 @@ This is NOT a reply. It's Matt originating the idea himself, inspired by what's 
 - First line must land immediately
 - Return JSON object with: "tweet" (the rewritten post) and "angle" (one sentence on the angle taken)
 Return ONLY raw JSON object.`;
+
+export const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever.`;
+
+export const TOV_OPTIONS = [
+  { key: 'upbeat',     label: 'Upbeat',     modifier: 'Warm and genuinely energized. Find what\'s actually working and mean it — not performed optimism. No preachiness. Structure and length follow the energy of the story.' },
+  { key: 'visionary',  label: 'Visionary',  modifier: 'Zoom out. Connect this moment to where things are heading. Sound like someone who\'s seen enough cycles to recognize this one. Don\'t announce the insight — let it emerge. Structure and length follow the complexity of the idea.' },
+  { key: 'bandwagon',  label: 'Bandwagon',  modifier: 'Ride the wave. Agree with what everyone else is seeing. No personal spin, no editorial layer, no lesson, no positioning. Just add credibility and experience to the consensus. Sound like someone who gets why people feel this way.' },
+  { key: 'contrarian', label: 'Contrarian', modifier: 'Find the specific flaw in the conventional wisdom. Name it precisely. Don\'t be cynical — be surgical. Never conclude with what people should do instead. Just expose what\'s wrong with the current take and stop.' },
+  { key: 'raw',        label: 'Raw',        modifier: 'Say the thing others won\'t. No hedging, no diplomatic softening, no qualifications. Shortest path from thought to page. Trust the reader. Don\'t explain yourself.' },
+];
+
+export const LENGTH_OPTIONS = [
+  { key: 'short',  label: 'Short',  modifier: 'HARD LIMIT: 1-4 sentences maximum. One tight paragraph or two very short ones. If it runs longer, cut it.' },
+  { key: 'medium', label: 'Medium', modifier: '' },
+  { key: 'long',   label: 'Long',   modifier: '8+ sentences. More narrative, more evidence, more room to breathe. Still no padding.' },
+];
+
+export const TOPIC_OPTIONS = [
+  { key: 'tech',    label: 'Tech & AI',          value: 'Tech & AI' },
+  { key: 'culture', label: 'Culture & Media',     value: 'Culture & Media' },
+  { key: 'brand',   label: 'Brand & Marketing',   value: 'Brand & Marketing' },
+];
+
+export function getTovModifier(activeKey) {
+  if (!activeKey) return '';
+  const opt = TOV_OPTIONS.find(o => o.key === activeKey);
+  return opt ? '\n\nTONE: ' + opt.modifier : '';
+}
+
+export function getLengthModifier(activeKey) {
+  if (!activeKey || activeKey === 'medium') return '';
+  const opt = LENGTH_OPTIONS.find(o => o.key === activeKey);
+  return (opt && opt.modifier) ? '\n\nLENGTH: ' + opt.modifier : '';
+}
+
+export function getTopicModifier(activeKey) {
+  if (!activeKey) return '';
+  const opt = TOPIC_OPTIONS.find(o => o.key === activeKey);
+  return opt ? `\n\nCOUNT AND TOPIC OVERRIDE: Write exactly 1 post. Focus ONLY on ${opt.value} stories. Ignore other topics entirely. Set the topic field to "${opt.value}". Return JSON array of exactly 1 object.` : '';
+}
+
+export function buildSystemPrompt(base, { tov = null, length = null, topic = null } = {}) {
+  return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getLengthModifier(length) + getTopicModifier(topic);
+}
+
+export function buildResearchMsg(topic = null) {
+  const base = 'Search the web for the most interesting stories from TODAY';
+  if (!topic) return base + ' across Tech & AI, Culture & Media, and Brand & Marketing.';
+  const opt = TOPIC_OPTIONS.find(o => o.key === topic);
+  return base + `. Focus ONLY on ${opt ? opt.value : ''} stories. Ignore other topics entirely.`;
+}

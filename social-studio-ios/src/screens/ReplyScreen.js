@@ -8,7 +8,8 @@ import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '../auth/AuthContext';
 import { callAPI } from '../api/anthropic';
 import { fetchXSearch, hoursAgo } from '../api/twitter';
-import { REPLY_SYSTEM, TRENDING_SYSTEM } from '../constants/prompts';
+import { REPLY_SYSTEM, TRENDING_SYSTEM, buildSystemPrompt } from '../constants/prompts';
+import TovSelector from '../components/TovSelector';
 import { WATCH_ACCOUNTS } from '../constants/watchAccounts';
 import { colors, topicColors } from '../constants/theme';
 
@@ -140,6 +141,7 @@ export default function ReplyScreen() {
   const [replyLoading, setReplyLoading] = useState(false);
   const [fetchError, setFetchError]     = useState('');
   const [replyError, setReplyError]     = useState('');
+  const [tov, setTov]                   = useState(null);
 
   function switchMode(m) {
     setMode(m);
@@ -266,7 +268,8 @@ export default function ReplyScreen() {
         ? `Write 3 reply options to this:\n\n"${sourceText}"\n\nSource: ${sourceAuthor}`
         : `Write 3 reply options to this tweet:\n\n"${sourceText}"`;
 
-      const results = await callAPI(REPLY_SYSTEM, msg, false);
+      const system = buildSystemPrompt(REPLY_SYSTEM, { tov });
+      const results = await callAPI(system, msg, false);
       setReplyCards(results);
     } catch (e) {
       setReplyError(e.message === 'Request timed out — try again.' ? e.message : 'Generation failed. Check your connection and try again.');
@@ -401,6 +404,9 @@ export default function ReplyScreen() {
               />
             </View>
           )}
+
+          {/* TOV selector */}
+          <TovSelector value={tov} onChange={setTov} />
 
           {/* Draft Reply button */}
           {(mode === 'paste' || selected) && (
