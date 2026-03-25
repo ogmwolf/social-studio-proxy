@@ -5,29 +5,36 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { LINKEDIN_SYSTEM } from '../constants/prompts';
+import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM } from '../constants/prompts';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
 
-const PROMPT_MSG = `Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 3 LinkedIn posts in my voice. First line must hook. End with something inviting a response.`;
+const RESEARCH_MSG = `Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing.`;
+
+function buildGenerationPrompt(topics) {
+  const lines = topics.map((t, i) => `${i + 1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
+  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nWrite 3 LinkedIn posts in my voice, one per topic. First line must hook. End with something inviting a response.`;
+}
 
 export default function LinkedInScreen() {
-  const [cards, setCards]     = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [cards, setCards] = useState([]);
+  const [phase, setPhase] = useState(null); // null | 'researching' | 'drafting'
+  const [error, setError] = useState('');
 
   async function generate() {
-    setLoading(true);
+    setPhase('researching');
     setError('');
     setCards([]);
     try {
-      const results = await callAPI(LINKEDIN_SYSTEM, PROMPT_MSG, true);
+      const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, RESEARCH_MSG, true, 800);
+      setPhase('drafting');
+      const results = await callAPI(LINKEDIN_SYSTEM, buildGenerationPrompt(topics), false);
       setCards(results);
     } catch (e) {
       setError(e.message === 'Request timed out — try again.' ? e.message : 'Generation failed. Check your connection and try again.');
       console.error('[LinkedIn] Error:', e);
     } finally {
-      setLoading(false);
+      setPhase(null);
     }
   }
 
@@ -53,15 +60,17 @@ export default function LinkedInScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, !!phase && styles.buttonDisabled]}
           onPress={generate}
-          disabled={loading}
+          disabled={!!phase}
           activeOpacity={0.85}
         >
-          {loading ? (
+          {phase ? (
             <View style={styles.buttonInner}>
               <ActivityIndicator color="#fff" size="small" />
-              <Text style={styles.buttonText}>Researching...</Text>
+              <Text style={styles.buttonText}>
+                {phase === 'researching' ? 'Researching...' : 'Drafting...'}
+              </Text>
             </View>
           ) : (
             <Text style={styles.buttonText}>Research & Draft Posts</Text>
@@ -74,9 +83,9 @@ export default function LinkedInScreen() {
           </View>
         )}
 
-        {loading && (
+        {!!phase && (
           <Text style={styles.loadingHint}>
-            Researching today's news and drafting for LinkedIn...
+            {phase === 'researching' ? "Finding today's stories..." : 'Writing your posts...'}
           </Text>
         )}
 
