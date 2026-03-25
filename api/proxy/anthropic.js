@@ -22,8 +22,6 @@ module.exports = async function handler(req, res) {
       signal: controller.signal,
     });
 
-    clearTimeout(timeout);
-
     if (response.status !== 200) {
       const errText = await response.text();
       console.error(`Anthropic error ${response.status}:`, errText);
@@ -35,11 +33,12 @@ module.exports = async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json(data);
   } catch (e) {
-    clearTimeout(timeout);
     res.setHeader('Content-Type', 'application/json');
     if (e.name === 'AbortError') {
       return res.status(504).json({ error: 'Request timed out after 45 seconds' });
     }
     return res.status(500).json({ error: e.message });
+  } finally {
+    clearTimeout(timeout);
   }
 };
