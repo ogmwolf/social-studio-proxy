@@ -383,13 +383,12 @@ HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Bee
 
 const ORIG_SYSTEM = TWEET_VOICE + `
 
-TASK: Write 5 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
-Return JSON array of exactly 5 objects:
-- "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
+TASK: Write 3 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+Return JSON array of exactly 3 objects:
+- "type": "short"|"medium"|"long"
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
 - "tweet": tweet text (max 280 chars)
-- "angle": why this works for Matt (1 sentence)
 Return ONLY raw JSON array.`;
 
 const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.
@@ -481,8 +480,8 @@ This is NOT a reply. It's Matt originating the idea himself, inspired by what's 
 - Return JSON object with: "tweet" (the rewritten post) and "angle" (one sentence on the angle taken)
 Return ONLY raw JSON object.`;
 
-const TYPE_COLORS = { hot_take:'#FF4B2B', observation:'#a78bfa', thread_opener:'#00B4D8', question:'#f59e0b', insight:'#2EC4B6' };
-const TYPE_LABELS = { hot_take:'Hot Take', observation:'Observation', thread_opener:'Thread Opener', question:'Question', insight:'Insight' };
+const TYPE_COLORS = { short:'#00B4D8', medium:'#a78bfa', long:'#f59e0b' };
+const TYPE_LABELS = { short:'Short', medium:'Medium', long:'Long' };
 const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
 
 let data = { orig:[], reply:[], paste:[], li:[] };

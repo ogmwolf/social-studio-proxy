@@ -102,13 +102,12 @@ HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Bee
 
 export const ORIG_SYSTEM = TWEET_VOICE + `
 
-TASK: Write 5 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
-Return JSON array of exactly 5 objects:
-- "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
+TASK: Write 3 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+Return JSON array of exactly 3 objects:
+- "type": "short"|"medium"|"long"
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
 - "tweet": tweet text (max 280 chars)
-- "angle": why this works for Matt (1 sentence)
 Return ONLY raw JSON array.`;
 
 export const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.

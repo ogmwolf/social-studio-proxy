@@ -16,11 +16,9 @@ export const colors = {
 };
 
 export const typeColors = {
-  hot_take:       '#FF4B2B',
-  observation:    '#a78bfa',
-  thread_opener:  '#00B4D8',
-  question:       '#f59e0b',
-  insight:        '#2EC4B6',
+  short:  '#00B4D8',
+  medium: '#a78bfa',
+  long:   '#f59e0b',
 };
 
 export const topicColors = {
@@ -30,9 +28,7 @@ export const topicColors = {
 };
 
 export const typeLabels = {
-  hot_take:       'Hot Take',
-  observation:    'Observation',
-  thread_opener:  'Thread Opener',
-  question:       'Question',
-  insight:        'Insight',
+  short:  'Short',
+  medium: 'Medium',
+  long:   'Long',
 };
