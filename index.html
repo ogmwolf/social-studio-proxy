@@ -879,6 +879,7 @@ async function generateLinkedIn() {
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Finding today\'s stories...');
     const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM,'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing.',true,800);
 
+    await new Promise(resolve => setTimeout(resolve, 2000));
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
     data.li = await callAPI(LINKEDIN_SYSTEM, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
