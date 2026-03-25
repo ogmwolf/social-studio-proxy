@@ -24,7 +24,7 @@ export default function TweetsScreen() {
     setCards([]);
     try {
       const system = buildSystemPrompt(ORIG_SYSTEM, { tov, topic });
-      const msg = buildResearchMsg(topic) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+      const msg = buildResearchMsg(topic, tov) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
       const results = await callAPI(system, msg, true);
       setCards(results);
     } catch (e) {

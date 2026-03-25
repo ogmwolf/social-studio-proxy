@@ -131,11 +131,11 @@ Return ONLY raw JSON object.`;
 export const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever.`;
 
 export const TOV_OPTIONS = [
-  { key: 'upbeat',     label: 'Upbeat',     modifier: 'Warm and genuinely energized. Find what\'s actually working and mean it — not performed optimism. No preachiness. Structure and length follow the energy of the story.' },
-  { key: 'visionary',  label: 'Visionary',  modifier: 'Zoom out. Connect this moment to where things are heading. Sound like someone who\'s seen enough cycles to recognize this one. Don\'t announce the insight — let it emerge. Structure and length follow the complexity of the idea.' },
-  { key: 'bandwagon',  label: 'Bandwagon',  modifier: 'Ride the wave. Agree with what everyone else is seeing. No personal spin, no editorial layer, no lesson, no positioning. Just add credibility and experience to the consensus. Sound like someone who gets why people feel this way.' },
-  { key: 'contrarian', label: 'Contrarian', modifier: 'Find the specific flaw in the conventional wisdom. Name it precisely. Don\'t be cynical — be surgical. Never conclude with what people should do instead. Just expose what\'s wrong with the current take and stop.' },
-  { key: 'raw',        label: 'Raw',        modifier: 'Say the thing others won\'t. No hedging, no diplomatic softening, no qualifications. Shortest path from thought to page. Trust the reader. Don\'t explain yourself.' },
+  { key: 'upbeat',     label: 'Upbeat',     modifier: 'Warm and genuinely energized. Find what\'s actually working and mean it. NOT performed optimism — real signal. If the story is inherently negative, find the angle that isn\'t. Never cynical, never hedging.', research: 'Find stories with genuine positive momentum, wins, breakthroughs, or growth. Avoid controversies, lawsuits, failures, or negative news.' },
+  { key: 'visionary',  label: 'Visionary',  modifier: 'Zoom out entirely. This moment connects to where things are heading in 3-5 years. You\'ve seen enough cycles to recognize this one. Don\'t announce the insight — let it emerge from the observation.', research: 'Find stories about emerging shifts, new directions, or long-term trends. Avoid day-to-day news cycles.' },
+  { key: 'bandwagon',  label: 'Bandwagon',  modifier: 'Ride the wave. Full agreement with the consensus. Zero personal spin, zero editorial layer, zero lesson, zero positioning. Add credibility and experience to what everyone already believes. Sound like someone who genuinely gets why people feel this way — not someone performing agreement.', research: 'Find the stories everyone is talking about right now. The biggest, most mainstream conversations.' },
+  { key: 'contrarian', label: 'Contrarian', modifier: 'Find the specific flaw in the conventional wisdom. Name it precisely. Surgical, not cynical. Never tell people what they should do instead. Expose what\'s wrong and stop.', research: 'Find stories where the mainstream take is wrong or incomplete. Overblown narratives, hype, or consensus views worth challenging.' },
+  { key: 'raw',        label: 'Raw',        modifier: 'Say the uncomfortable thing. Zero hedging, zero diplomatic softening, zero qualifications. Shortest path from thought to page. Trust the reader completely. Don\'t explain yourself.', research: 'Find the stories that are uncomfortable, surprising, or that people are avoiding talking about directly.' },
 ];
 
 export const LENGTH_OPTIONS = [
@@ -172,9 +172,16 @@ export function buildSystemPrompt(base, { tov = null, length = null, topic = nul
   return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getLengthModifier(length) + getTopicModifier(topic);
 }
 
-export function buildResearchMsg(topic = null) {
+export function getTovResearchGuidance(tov) {
+  if (!tov) return '';
+  const opt = TOV_OPTIONS.find(o => o.key === tov);
+  return opt ? ' ' + opt.research : '';
+}
+
+export function buildResearchMsg(topic = null, tov = null) {
   const base = 'Search the web for the most interesting stories from TODAY';
-  if (!topic) return base + ' across Tech & AI, Culture & Media, and Brand & Marketing.';
+  const guidance = getTovResearchGuidance(tov);
+  if (!topic) return base + ' across Tech & AI, Culture & Media, and Brand & Marketing.' + guidance;
   const opt = TOPIC_OPTIONS.find(o => o.key === topic);
-  return base + `. Focus ONLY on ${opt ? opt.value : ''} stories. Ignore other topics entirely.`;
+  return base + `. Focus ONLY on ${opt ? opt.value : ''} stories. Ignore other topics entirely.` + guidance;
 }
