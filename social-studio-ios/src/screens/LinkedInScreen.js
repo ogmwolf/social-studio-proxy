@@ -31,7 +31,7 @@ export default function LinkedInScreen() {
     setError('');
     setCards([]);
     try {
-      const researchMsg = buildResearchMsg(topic);
+      const researchMsg = buildResearchMsg(topic, tov);
       const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, researchMsg, true, 800);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setPhase('drafting');
