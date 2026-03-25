@@ -6,7 +6,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
 import { ORIG_SYSTEM, buildSystemPrompt, buildResearchMsg } from '../constants/prompts';
-import TovSelector from '../components/TovSelector';
 import TopicSelector from '../components/TopicSelector';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
@@ -15,7 +14,6 @@ export default function TweetsScreen() {
   const [cards, setCards]     = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
-  const [tov, setTov]         = useState(null);
   const [topic, setTopic]     = useState(null);
 
   async function generate() {
@@ -23,8 +21,8 @@ export default function TweetsScreen() {
     setError('');
     setCards([]);
     try {
-      const system = buildSystemPrompt(ORIG_SYSTEM, { tov, topic });
-      const msg = buildResearchMsg(topic, tov) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+      const system = buildSystemPrompt(ORIG_SYSTEM, { topic });
+      const msg = buildResearchMsg(topic) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
       const results = await callAPI(system, msg, true);
       setCards(results);
     } catch (e) {
@@ -56,7 +54,6 @@ export default function TweetsScreen() {
           </Text>
         </View>
 
-        <TovSelector value={tov} onChange={setTov} />
         <TopicSelector value={topic} onChange={setTopic} />
 
         <TouchableOpacity
