@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { ORIG_SYSTEM, buildSystemPrompt, buildResearchMsg } from '../constants/prompts';
-import TopicSelector from '../components/TopicSelector';
+import { ORIG_SYSTEM, buildSystemPrompt } from '../constants/prompts';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
 
@@ -14,15 +13,14 @@ export default function TweetsScreen() {
   const [cards, setCards]     = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
-  const [topic, setTopic]     = useState(null);
 
   async function generate() {
     setLoading(true);
     setError('');
     setCards([]);
     try {
-      const system = buildSystemPrompt(ORIG_SYSTEM, { topic });
-      const msg = buildResearchMsg(topic) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+      const system = buildSystemPrompt(ORIG_SYSTEM);
+      const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
       const results = await callAPI(system, msg, true);
       setCards(results);
     } catch (e) {
@@ -53,8 +51,6 @@ export default function TweetsScreen() {
             Researches today's news. Drafts tweets in your voice across three categories.
           </Text>
         </View>
-
-        <TopicSelector value={topic} onChange={setTopic} />
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
