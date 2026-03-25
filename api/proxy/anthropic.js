@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 55000);
+  const timeout = setTimeout(() => controller.abort(), 45000);
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -38,7 +38,7 @@ module.exports = async function handler(req, res) {
     clearTimeout(timeout);
     res.setHeader('Content-Type', 'application/json');
     if (e.name === 'AbortError') {
-      return res.status(504).json({ error: 'Request timed out after 55 seconds' });
+      return res.status(504).json({ error: 'Request timed out after 45 seconds' });
     }
     return res.status(500).json({ error: e.message });
   }
