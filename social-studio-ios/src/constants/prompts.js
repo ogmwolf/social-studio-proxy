@@ -30,8 +30,8 @@ HIS WORLD: Gaming, esports, creator economy, brand marketing, culture, AI, platf
 
 export const ORIG_SYSTEM = VOICE + `
 
-TASK: Write 3 original tweets based on today's news — one per topic across Tech & AI, Culture & Media, and Brand & Marketing.
-Return JSON array of exactly 3 objects:
+TASK: Write 5 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+Return JSON array of exactly 5 objects:
 - "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)

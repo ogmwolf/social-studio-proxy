@@ -136,10 +136,6 @@
 
   <!-- TWEETS -->
   <div class="panel active" id="panel-original">
-    <div class="selector-block">
-      <span class="selector-label">Topic</span>
-      <div class="selector-row" id="topic-orig-row"></div>
-    </div>
     <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>⚡</span> Research & Draft Today's Tweets</button>
     <div id="orig-error" class="error-box" style="display:none"></div>
     <div id="orig-loading" class="loading-hint" style="display:none">Searching the web & drafting in your voice...</div>
@@ -315,8 +311,8 @@ HIS WORLD: Gaming, esports, creator economy, brand marketing, culture, AI, platf
 
 const ORIG_SYSTEM = VOICE + `
 
-TASK: Write 3 original tweets based on today's news — one per topic across Tech & AI, Culture & Media, and Brand & Marketing.
-Return JSON array of exactly 3 objects:
+TASK: Write 5 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+Return JSON array of exactly 5 objects:
 - "type": "hot_take"|"observation"|"thread_opener"|"question"|"insight"
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
@@ -446,7 +442,6 @@ const TOPIC_OPTIONS = [
 let activeTovReply = null;
 let activeTovPaste = null;
 let activeTovLi    = null;
-let activeTopicOrig = null;
 let activeTopicLi   = null;
 let activeLiLength  = 'medium';
 
@@ -501,7 +496,6 @@ function buildLengthRow() {
 function toggleTovReply(key) { activeTovReply = activeTovReply === key ? null : key; buildSelectorRow('tov-reply-row', TOV_OPTIONS, activeTovReply, 'toggleTovReply'); }
 function toggleTovPaste(key) { activeTovPaste = activeTovPaste === key ? null : key; buildSelectorRow('tov-paste-row', TOV_OPTIONS, activeTovPaste, 'toggleTovPaste'); }
 function toggleTovLi(key)    { activeTovLi    = activeTovLi    === key ? null : key; buildSelectorRow('tov-li-row',    TOV_OPTIONS, activeTovLi,    'toggleTovLi');    }
-function toggleTopicOrig(key){ activeTopicOrig = activeTopicOrig === key ? null : key; buildSelectorRow('topic-orig-row', TOPIC_OPTIONS, activeTopicOrig, 'toggleTopicOrig'); }
 function toggleTopicLi(key)  { activeTopicLi   = activeTopicLi   === key ? null : key; buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');   }
 function toggleLength(key)   { activeLiLength  = activeLiLength  === key && key !== 'medium' ? 'medium' : key; buildLengthRow(); }
 
@@ -673,8 +667,8 @@ async function generateOriginal() {
   document.getElementById('orig-cards').innerHTML='';
   document.getElementById('orig-footer').style.display='none';
   try {
-    const system = buildSystemPrompt(ORIG_SYSTEM, null, null, activeTopicOrig);
-    const msg = buildResearchMsg(activeTopicOrig) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+    const system = buildSystemPrompt(ORIG_SYSTEM, null, null, null);
+    const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
   } catch(e) {
@@ -1041,7 +1035,6 @@ window.addEventListener('DOMContentLoaded', () => {
   buildSelectorRow('tov-reply-row',  TOV_OPTIONS,   activeTovReply,  'toggleTovReply');
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   buildSelectorRow('tov-li-row',     TOV_OPTIONS,   activeTovLi,     'toggleTovLi');
-  buildSelectorRow('topic-orig-row', TOPIC_OPTIONS, activeTopicOrig, 'toggleTopicOrig');
   buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');
   buildLengthRow();
 });
