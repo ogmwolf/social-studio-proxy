@@ -35,10 +35,10 @@ async function claudeFetch(body) {
 
 // Multi-result call. search=true enables web_search tool (default).
 // Returns parsed JSON array.
-export async function callAPI(system, msg, search = true) {
+export async function callAPI(system, msg, search = true, maxTokens = 4000) {
   const body = {
     model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
+    max_tokens: maxTokens,
     system: system,
     messages: [{ role: 'user', content: msg }],
   };

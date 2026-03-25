@@ -317,7 +317,7 @@ Return ONLY raw JSON array.`;
 
 const LINKEDIN_SYSTEM = VOICE + `
 
-TASK: Write 3 LinkedIn posts based on today's news. Each should be medium-large: 3-5 tight paragraphs, substantial enough to be worth reading but never padded.
+TASK: Write 3 LinkedIn posts based on today's news. Each should be medium-large: 2-3 tight paragraphs, substantial enough to be worth reading but never padded.
 
 Rules:
 - FIRST LINE IS EVERYTHING. Single punchy sentence that stops the scroll. No warmup. Land the point immediately.
@@ -338,6 +338,15 @@ Return JSON array of exactly 3 objects:
 - "post": full LinkedIn post text
 - "angle": why this works for Matt's LinkedIn brand (1 sentence)
 Return ONLY raw JSON array.`;
+
+const LINKEDIN_RESEARCH_SYSTEM = `You are a research assistant for a senior marketing exec. Search the web for today's most interesting stories across Tech & AI, Culture & Media, and Brand & Marketing. Find stories with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.
+
+Return ONLY a raw JSON array of exactly 3 objects:
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "headline": short story title (1 line)
+- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today
+
+No preamble. No commentary. Raw JSON array only.`;
 
 const IMG_SYSTEM = `You generate bold, unexpected image prompts for social media posts.
 
@@ -386,10 +395,10 @@ function switchTab(name, el) {
   document.getElementById('panel-' + name).classList.add('active');
 }
 
-async function callAPI(system, msg, search=true) {
+async function callAPI(system, msg, search=true, maxTokens=4000) {
   const body = {
     model:'claude-sonnet-4-6',
-    max_tokens:4000,
+    max_tokens:maxTokens,
     system: system,
     messages:[{role:'user',content:msg}]
   };
@@ -857,13 +866,21 @@ async function generatePastedReply() {
 }
 
 // ── LINKEDIN ──
+function buildLinkedInGenerationPrompt(topics) {
+  const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
+  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nWrite 3 LinkedIn posts in my voice, one per topic. First line must hook. End with something inviting a response.`;
+}
+
 async function generateLinkedIn() {
-  busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Researching & drafting for LinkedIn...');
   document.getElementById('li-error').style.display='none';
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
   try {
-    data.li = await callAPI(LINKEDIN_SYSTEM,'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write 3 LinkedIn posts in my voice. First line must hook. End with something inviting a response.');
+    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Finding today\'s stories...');
+    const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM,'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing.',true,800);
+
+    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
+    data.li = await callAPI(LINKEDIN_SYSTEM, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
   } catch(e) {
     document.getElementById('li-error').textContent='Something went wrong — try again.';

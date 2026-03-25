@@ -64,7 +64,7 @@ Return ONLY raw JSON array.`;
 
 export const LINKEDIN_SYSTEM = VOICE + `
 
-TASK: Write 3 LinkedIn posts based on today's news. Each should be medium-large: 3-5 tight paragraphs, substantial enough to be worth reading but never padded.
+TASK: Write 3 LinkedIn posts based on today's news. Each should be medium-large: 2-3 tight paragraphs, substantial enough to be worth reading but never padded.
 
 Rules:
 - FIRST LINE IS EVERYTHING. Single punchy sentence that stops the scroll. No warmup. Land the point immediately.
@@ -85,6 +85,15 @@ Return JSON array of exactly 3 objects:
 - "post": full LinkedIn post text
 - "angle": why this works for Matt's LinkedIn brand (1 sentence)
 Return ONLY raw JSON array.`;
+
+export const LINKEDIN_RESEARCH_SYSTEM = `You are a research assistant for a senior marketing exec. Search the web for today's most interesting stories across Tech & AI, Culture & Media, and Brand & Marketing. Find stories with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.
+
+Return ONLY a raw JSON array of exactly 3 objects:
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "headline": short story title (1 line)
+- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today
+
+No preamble. No commentary. Raw JSON array only.`;
 
 export const IMG_SYSTEM = `You generate bold, unexpected image prompts for social media posts.
 
