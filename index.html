@@ -137,10 +137,6 @@
   <!-- TWEETS -->
   <div class="panel active" id="panel-original">
     <div class="selector-block">
-      <span class="selector-label">Tone of Voice</span>
-      <div class="selector-row" id="tov-orig-row"></div>
-    </div>
-    <div class="selector-block">
       <span class="selector-label">Topic</span>
       <div class="selector-row" id="topic-orig-row"></div>
     </div>
@@ -447,7 +443,6 @@ const TOPIC_OPTIONS = [
   { key:'brand',   label:'Brand & Marketing', value:'Brand & Marketing' },
 ];
 
-let activeTovOrig  = null;
 let activeTovReply = null;
 let activeTovPaste = null;
 let activeTovLi    = null;
@@ -503,7 +498,6 @@ function buildLengthRow() {
   }).join('');
 }
 
-function toggleTovOrig(key)  { activeTovOrig  = activeTovOrig  === key ? null : key; buildSelectorRow('tov-orig-row',  TOV_OPTIONS, activeTovOrig,  'toggleTovOrig');  }
 function toggleTovReply(key) { activeTovReply = activeTovReply === key ? null : key; buildSelectorRow('tov-reply-row', TOV_OPTIONS, activeTovReply, 'toggleTovReply'); }
 function toggleTovPaste(key) { activeTovPaste = activeTovPaste === key ? null : key; buildSelectorRow('tov-paste-row', TOV_OPTIONS, activeTovPaste, 'toggleTovPaste'); }
 function toggleTovLi(key)    { activeTovLi    = activeTovLi    === key ? null : key; buildSelectorRow('tov-li-row',    TOV_OPTIONS, activeTovLi,    'toggleTovLi');    }
@@ -679,8 +673,8 @@ async function generateOriginal() {
   document.getElementById('orig-cards').innerHTML='';
   document.getElementById('orig-footer').style.display='none';
   try {
-    const system = buildSystemPrompt(ORIG_SYSTEM, activeTovOrig, null, activeTopicOrig);
-    const msg = buildResearchMsg(activeTopicOrig, activeTovOrig) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+    const system = buildSystemPrompt(ORIG_SYSTEM, null, null, activeTopicOrig);
+    const msg = buildResearchMsg(activeTopicOrig) + ' Write tweets in my voice — mix of types. Punchy, human, worth reading.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
   } catch(e) {
@@ -1044,7 +1038,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
   }
-  buildSelectorRow('tov-orig-row',   TOV_OPTIONS,   activeTovOrig,   'toggleTovOrig');
   buildSelectorRow('tov-reply-row',  TOV_OPTIONS,   activeTovReply,  'toggleTovReply');
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   buildSelectorRow('tov-li-row',     TOV_OPTIONS,   activeTovLi,     'toggleTovLi');
