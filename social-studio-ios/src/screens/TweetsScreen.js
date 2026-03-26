@@ -23,7 +23,7 @@ export default function TweetsScreen() {
       console.log('[Tweets] Templates selected:', templates.map(t => `${t.id}(${t.type}, max ${t.constraint.match(/max (\d+) words/)?.[1] ?? '?'}w)`).join(', '));
       const system = buildSystemPrompt(buildOrigSystem(templates));
       console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
-      const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+      const msg = 'Search broadly across multiple source types for today\'s most significant stories in Tech & AI, Culture & Media, and Brand & Marketing. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and conversations happening in professional communities. Find stories that smart people in these industries will be talking about tomorrow, not what everyone is already covering today. Prioritize early signal over saturation. Each of the 3 tweets should come from a different source type if possible.';
       const results = await callAPI(system, msg, true);
       setCards(results);
     } catch (e) {
