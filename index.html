@@ -304,7 +304,7 @@ VOICE RULES:
 - No manufactured soundbites. No inspirational poster energy.
 - No quotes from famous people.
 - No hashtags (except LinkedIn). No emojis.
-- Never use em dashes. Use commas or periods instead.
+- No dashes of any kind. No em dashes, no en dashes, no hyphens as connectors. Commas or periods only.
 - Never start with "I".
 - Never wrap up with a lesson, takeaway, or summary.
 - Never end with a rhetorical question that's really just a statement in disguise.
@@ -390,7 +390,7 @@ VOICE RULES:
 - No manufactured soundbites. No inspirational poster energy.
 - No quotes from famous people.
 - No hashtags. No emojis.
-- Never use em dashes. Use commas or periods instead.
+- No dashes of any kind. No em dashes, no en dashes, no hyphens as connectors. Commas or periods only.
 - Never start with "I".
 - Always attribute specific numbers, percentages, and statistics to their source inline — "per [source]" or "according to [source]". Never float a stat without a source.
 - Never wrap up with a lesson, takeaway, or summary.
@@ -528,7 +528,7 @@ RIGHT ending (stops after the observation):
 The pattern to eliminate: after making a sharp observation, Claude adds a sentence that explains what the observation means or what's missing. That sentence is always the one to cut.
 
 - 2-3 hashtags at end
-- Never use em dashes (--) or hyphens to connect clauses. Use commas or periods instead. This is critical.
+- No dashes of any kind. No em dashes, no en dashes, no hyphens as connectors. Commas or periods only. This is critical.
 - Never use italic, bold, or any markdown formatting. Plain text only.
 
 Return JSON array of exactly 3 objects:
@@ -586,7 +586,7 @@ let data = { orig:[], reply:[], paste:[], li:[] };
 let trending = [], selected = null;
 
 // ── CONTENT BRIEF STATE ──
-const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever.`;
+const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever. No dashes of any kind — no em dashes, no en dashes, no hyphens used as connectors. Use commas or periods instead. This applies everywhere, without exception.`;
 
 const TOV_OPTIONS = [
   { key:'upbeat',     label:'Upbeat',     modifier:"Warm and genuinely energized. Find what's actually working and mean it. NOT performed optimism — real signal. If the story is inherently negative, find the angle that isn't. Never cynical, never hedging.",                                                                                                                                         research:"Find stories with genuine positive momentum, wins, breakthroughs, or growth. Avoid controversies, lawsuits, failures, or negative news." },
