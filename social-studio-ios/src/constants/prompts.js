@@ -129,15 +129,53 @@ VOICE RULES:
 
 HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Been ahead of every major curve. Curious about where things are heading, not certain.`;
 
-export const ORIG_SYSTEM = TWEET_VOICE + `
+export const TWEET_TEMPLATES = [
+  { id: 'flash',  weight: 20, type: 'short',  constraint: '1 sentence, max 10 words. Fact only. Hard ceiling — do not exceed.' },
+  { id: 'drop',   weight: 20, type: 'short',  constraint: '1-2 sentences, max 18 words. Fact only. Hard ceiling.' },
+  { id: 'sharp',  weight: 20, type: 'short',  constraint: '2 sentences, max 28 words. Fact + one specific observation. Hard ceiling.' },
+  { id: 'beat',   weight: 20, type: 'medium', constraint: '2-3 sentences, max 40 words. Fact + observation. Hard ceiling.' },
+  { id: 'open',   weight: 10, type: 'medium', constraint: '2-3 sentences, max 45 words. Fact + observation + a genuine open question (not rhetorical). Hard ceiling.' },
+  { id: 'build',  weight:  5, type: 'long',   constraint: '3 sentences, max 55 words. Fact + observation + open question. Hard ceiling.' },
+  { id: 'long',   weight:  5, type: 'long',   constraint: '3-4 sentences, max 70 words. All formula moves. Hard ceiling.' },
+];
 
-TASK: Write 3 original tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
-Return JSON array of exactly 3 objects:
-- "type": "short"|"medium"|"long"
+export function pickTemplates() {
+  const remaining = [...TWEET_TEMPLATES];
+  const picked = [];
+  for (let i = 0; i < 3; i++) {
+    const total = remaining.reduce((s, t) => s + t.weight, 0);
+    let r = Math.random() * total;
+    let chosen = remaining[remaining.length - 1];
+    for (let j = 0; j < remaining.length; j++) {
+      r -= remaining[j].weight;
+      if (r <= 0) { chosen = remaining[j]; break; }
+    }
+    picked.push(chosen);
+    remaining.splice(remaining.indexOf(chosen), 1);
+  }
+  return picked;
+}
+
+function buildTaskBlock(templates) {
+  const slots = templates.map((t, i) =>
+    `Tweet ${i + 1} [return type: "${t.type}"]: ${t.constraint}`
+  ).join('\n');
+  return `TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+Each tweet has a hard structural constraint. Follow it exactly. Word count is a hard ceiling — do not exceed it.
+
+${slots}
+
+Return JSON array of exactly 3 objects in slot order:
+- "type": the value shown in brackets for that slot
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
-- "tweet": tweet text (max 280 chars)
+- "tweet": tweet text — must satisfy the constraint for its slot
 Return ONLY raw JSON array.`;
+}
+
+export function buildOrigSystem(templates) {
+  return TWEET_VOICE + '\n\n' + buildTaskBlock(templates);
+}
 
 export const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.
 
