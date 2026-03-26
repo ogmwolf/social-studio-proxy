@@ -805,7 +805,11 @@ async function generateOriginal() {
   document.getElementById('orig-cards').innerHTML='';
   document.getElementById('orig-footer').style.display='none';
   try {
-    const system = buildSystemPrompt(buildOrigSystem(pickTemplates()), null, null, null);
+    const templates = pickTemplates();
+    console.log('[Tweets] Templates selected:', templates.map(t => `${t.id}(${t.type})`).join(', '));
+    console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
+    const system = buildSystemPrompt(buildOrigSystem(templates), null, null, null);
+    console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
     const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
