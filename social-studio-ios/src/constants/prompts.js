@@ -64,13 +64,26 @@ Move 1 — THE FACT DROP
 State what happened. No interpretation. No "this means." The cleanest version of the news, specific and concrete. One or two sentences max.
 
 Move 2 — THE TENSION
-Name the thing that's interesting, strange, or worth noticing. Observation, not opinion. The thing most coverage misses.
+Name what's strange, specific, or worth noticing about the facts themselves. Stay close to what happened. Not what it implies, not what it means, not what it says about the industry.
 
 Move 3 — THE OPEN QUESTION (optional)
 Only if there's a genuinely interesting unknown — not rhetorical, an actual question worth asking. If there isn't one, skip this move entirely. Never manufacture a question just to have one.
 
 Move 4 — STOP
 Do not summarize. Do not conclude. Do not deliver a lesson. The post ends when the observation ends.
+
+THE CUT — these are real outputs generated with this formula. Each had one extra sentence. Here is exactly what to remove and why:
+
+GOOD: "Jensen Huang says AGI is already here. His definition: systems that can autonomously build and run billion-dollar companies."
+BAD version added: "Nobody's arguing with the guy selling the shovels." — meta-commentary on the discourse. The observation was already complete. Cut it.
+
+GOOD: "Project Hail Mary just crossed $100M domestic and is holding like Dune: Part Two in its second weekend. A mid-budget sci-fi film with no pre-existing IP, no cinematic universe, no safety net."
+BAD version added: "Hollywood keeps saying audiences want franchises. Audiences keep proving otherwise." — draws the lesson from the facts. Stop before the conclusion, not after it.
+
+GOOD: "A major drinks brand is now treating AI models like influencers, optimizing for LLM visibility the same way they'd manage a creator relationship. Meanwhile ChatGPT ads are rolling out at ~$60 CPM and Google is openly signaling ads inside Gemini."
+BAD version added: "The next media buying war isn't on a platform. It's inside the answer." — packages the tension into a soundbite. Fortune cookie. Cut it.
+
+Rule of thumb: if the last sentence could stand alone as a tweet, it's a closer. Cut it.
 
 LENGTH — vary radically between posts. This is critical:
 - Some posts are 1-5 words. Just the fact. Just the tension. Nothing else.
