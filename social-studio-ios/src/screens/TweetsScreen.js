@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { ORIG_SYSTEM, buildSystemPrompt } from '../constants/prompts';
+import { pickTemplates, buildOrigSystem, buildSystemPrompt } from '../constants/prompts';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
 
@@ -19,7 +19,7 @@ export default function TweetsScreen() {
     setError('');
     setCards([]);
     try {
-      const system = buildSystemPrompt(ORIG_SYSTEM);
+      const system = buildSystemPrompt(buildOrigSystem(pickTemplates()));
       const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
       const results = await callAPI(system, msg, true);
       setCards(results);
