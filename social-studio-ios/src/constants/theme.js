@@ -15,20 +15,8 @@ export const colors = {
   linkedin:  '#0a66c2',
 };
 
-export const typeColors = {
-  short:  '#00B4D8',
-  medium: '#a78bfa',
-  long:   '#f59e0b',
-};
-
 export const topicColors = {
   'Tech & AI':          '#00B4D8',
   'Culture & Media':    '#a78bfa',
   'Brand & Marketing':  '#f59e0b',
-};
-
-export const typeLabels = {
-  short:  'Short',
-  medium: 'Medium',
-  long:   'Long',
 };

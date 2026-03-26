@@ -415,7 +415,7 @@ const TWEET_TEMPLATES = [
 function pickTemplates() {
   const remaining = [...TWEET_TEMPLATES];
   const picked = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 5; i++) {
     const total = remaining.reduce((s, t) => s + t.weight, 0);
     let r = Math.random() * total;
     let chosen = remaining[remaining.length - 1];
@@ -452,11 +452,11 @@ Examples of the shift:
 
 The event is the evidence. The human or institutional consequence is the tweet.
 
-TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+TASK: Write exactly 5 tweets based on today's news. Cover all three categories — Tech & AI, Culture & Media, and Brand & Marketing — with at least 1 tweet per category. Assign the remaining 2 tweets to whichever categories have the strongest stories today.
 
 BEFORE RETURNING: Count sentences in each tweet against its constraint above. If any tweet exceeds its sentence count, delete from the first extra sentence onward. No exceptions.
 
-Return JSON array of exactly 3 objects in slot order:
+Return JSON array of exactly 5 objects in slot order:
 - "type": the value shown in brackets for that slot
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
@@ -580,8 +580,6 @@ This is NOT a reply. It's Matt originating the idea himself, inspired by what's 
 - Return JSON object with: "tweet" (the rewritten post) and "angle" (one sentence on the angle taken)
 Return ONLY raw JSON object.`;
 
-const TYPE_COLORS = { short:'#00B4D8', medium:'#a78bfa', long:'#f59e0b' };
-const TYPE_LABELS = { short:'Short', medium:'Medium', long:'Long' };
 const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
 
 let data = { orig:[], reply:[], paste:[], li:[] };
@@ -701,21 +699,17 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
   const el = document.getElementById(containerId);
   const maxChars = isLinkedIn ? 3000 : 280;
   el.innerHTML = arr.map((t,i) => {
-    const color = TYPE_COLORS[t.type]||TOPIC_COLORS[t.topic]||'#1d9bf0';
-    const label = TYPE_LABELS[t.type]||(t.angle||'Draft');
+    const topicColor = TOPIC_COLORS[t.topic]||'#1d9bf0';
     const rawContent = isLinkedIn ? (t.post||t.tweet) : t.tweet;
     const content = rawContent
       .replace(/\*\*(.*?)\*\*/g,'$1')
       .replace(/\*(.*?)\*/g,'$1')
       .replace(/_(.*?)_/g,'$1');
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
-    const sizeLabel = t.size ? {small:'S — Short', medium:'M — Medium', large:'L — Long'}[t.size] : '';
-    const sizeColor = t.size ? {small:'#2EC4B6', medium:'#f59e0b', large:'#a78bfa'}[t.size] : '';
     return `<div class="card" style="animation-delay:${i*.08}s">
       <div class="tags">
-        <span class="tag" style="background:${color}1a;color:${color}">${label}</span>
+        ${t.angle?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.angle}</span>`:''}
         ${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}
-        ${sizeLabel?`<span class="tag" style="background:${sizeColor}1a;color:${sizeColor}">${sizeLabel}</span>`:''}
       </div>
       ${t.headline?`<div class="headline">↳ ${t.headline}</div>`:''}
       <div class="tweet-text" id="${key}-text-${i}">${content}</div>
@@ -743,10 +737,9 @@ function copyCard(key, i, isLinkedIn=false) {
 function editCard(key, i, cId, fId, isLinkedIn=false, maxChars=280) {
   const t=data[key][i];
   const content=isLinkedIn?(t.post||t.tweet):t.tweet;
-  const color=TYPE_COLORS[t.type]||TOPIC_COLORS[t.topic]||'#1d9bf0';
-  const label=TYPE_LABELS[t.type]||(t.angle||'Draft');
+  const topicColor=TOPIC_COLORS[t.topic]||'#1d9bf0';
   document.getElementById(`${key}-text-${i}`).closest('.card').innerHTML=`
-    <div class="tags"><span class="tag" style="background:${color}1a;color:${color}">${label}</span>${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}</div>
+    <div class="tags">${t.angle?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.angle}</span>`:''} ${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}</div>
     <textarea class="edit-area" id="${key}-edit-${i}" oninput="updateCount('${key}',${i},${maxChars})" style="min-height:${isLinkedIn?'200px':'90px'}">${content}</textarea>
     <div class="edit-footer">
       <span class="char-count" id="${key}-count-${i}">${content.length}/${maxChars}</span>
@@ -825,7 +818,7 @@ async function generateOriginal() {
     console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
     const system = buildSystemPrompt(buildOrigSystem(templates), null, null);
     console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
-    const msg = 'Search broadly across multiple source types for today\'s most significant stories in Tech & AI, Culture & Media, and Brand & Marketing. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and conversations happening in professional communities. Find stories that smart people in these industries will be talking about tomorrow, not what everyone is already covering today. Prioritize early signal over saturation. Each of the 3 tweets should come from a different source type if possible.';
+    const msg = 'Search broadly for today\'s most significant stories across Tech & AI, Culture & Media, and Brand & Marketing. Lead with the biggest, most important story of the day regardless of category — then fill the remaining slots with the strongest stories across all three categories, ensuring at least 1 tweet per category. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and professional communities. Prioritize early signal over saturation. Find what smart people will be talking about tomorrow, not what everyone is already covering today.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
   } catch(e) {

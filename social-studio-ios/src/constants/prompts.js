@@ -138,7 +138,7 @@ export const TWEET_TEMPLATES = [
 export function pickTemplates() {
   const remaining = [...TWEET_TEMPLATES];
   const picked = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 5; i++) {
     const total = remaining.reduce((s, t) => s + t.weight, 0);
     let r = Math.random() * total;
     let chosen = remaining[remaining.length - 1];
@@ -175,11 +175,11 @@ Examples of the shift:
 
 The event is the evidence. The human or institutional consequence is the tweet.
 
-TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+TASK: Write exactly 5 tweets based on today's news. Cover all three categories — Tech & AI, Culture & Media, and Brand & Marketing — with at least 1 tweet per category. Assign the remaining 2 tweets to whichever categories have the strongest stories today.
 
 BEFORE RETURNING: Count sentences in each tweet against its constraint above. If any tweet exceeds its sentence count, delete from the first extra sentence onward. No exceptions.
 
-Return JSON array of exactly 3 objects in slot order:
+Return JSON array of exactly 5 objects in slot order:
 - "type": the value shown in brackets for that slot
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
