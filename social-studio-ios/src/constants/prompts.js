@@ -96,7 +96,7 @@ LENGTH — vary radically between posts. This is critical:
 - Real humans vary wildly. Synthesize that.
 
 Examples of length variation on the same story:
-One sentence: "OpenAI killed Sora."
+One sentence: "AI is turning people into UI for machines."
 Very short: "OpenAI killed Sora. Interesting timing."
 Short: "OpenAI killed Sora and walked away from Disney in the same week. Two consumer bets, gone."
 Medium: "OpenAI just killed Sora and walked away from the Disney deal. Two consumer bets, gone in the same week. I keep wondering what the internal framing is for products that get shelved this fast."
@@ -126,8 +126,8 @@ VOICE RULES:
 HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Been ahead of every major curve. Curious about where things are heading, not certain.`;
 
 export const TWEET_TEMPLATES = [
-  { id: 'flash',  weight: 20, type: 'short',  constraint: '1 sentence only. Can be a fact, a consequence, or a sharp observation — but exactly one sentence. One period. Delete everything after it.' },
-  { id: 'drop',   weight: 20, type: 'short',  constraint: '1-2 sentences maximum. If you drafted 3 or more, delete from sentence 3 onward.' },
+  { id: 'flash',  weight: 20, type: 'short',  constraint: 'Exactly 1 sentence. Can be a fact, a consequence, or a sharp observation. No verdict. No explanation.' },
+  { id: 'drop',   weight: 20, type: 'short',  constraint: '1-2 sentences, max 18 words. A fact plus one consequence, or a single sharp observation. No verdict.' },
   { id: 'sharp',  weight: 20, type: 'short',  constraint: 'Exactly 2 sentences. Sentence 1: the fact. Sentence 2: one specific observation. Nothing after sentence 2 — stop there.' },
   { id: 'beat',   weight: 20, type: 'medium', constraint: '2-3 sentences. Fact + one observation. Stop after sentence 3.' },
   { id: 'open',   weight: 10, type: 'medium', constraint: '2-3 sentences. Fact + observation + a genuine open question (not rhetorical — an actual unknown). Stop after the question.' },
