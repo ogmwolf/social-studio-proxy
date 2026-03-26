@@ -411,13 +411,13 @@ VOICE RULES:
 HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Been ahead of every major curve. Curious about where things are heading, not certain.`;
 
 const TWEET_TEMPLATES = [
-  { id:'flash',  weight:20, type:'short',  constraint:'1 sentence, max 10 words. Fact only. Hard ceiling — do not exceed.' },
-  { id:'drop',   weight:20, type:'short',  constraint:'1-2 sentences, max 18 words. Fact only. Hard ceiling.' },
-  { id:'sharp',  weight:20, type:'short',  constraint:'2 sentences, max 28 words. Fact + one specific observation. Hard ceiling.' },
-  { id:'beat',   weight:20, type:'medium', constraint:'2-3 sentences, max 40 words. Fact + observation. Hard ceiling.' },
-  { id:'open',   weight:10, type:'medium', constraint:'2-3 sentences, max 45 words. Fact + observation + a genuine open question (not rhetorical). Hard ceiling.' },
-  { id:'build',  weight: 5, type:'long',   constraint:'3 sentences, max 55 words. Fact + observation + open question. Hard ceiling.' },
-  { id:'long',   weight: 5, type:'long',   constraint:'3-4 sentences, max 70 words. All formula moves. Hard ceiling.' },
+  { id:'flash',  weight:20, type:'short',  constraint:'1 sentence only. Just the fact. Stop after the period. Delete anything after the first sentence.' },
+  { id:'drop',   weight:20, type:'short',  constraint:'1-2 sentences. Fact only. If you wrote 2 sentences, delete the second unless it is strictly the fact and nothing else.' },
+  { id:'sharp',  weight:20, type:'short',  constraint:'Exactly 2 sentences. Sentence 1: the fact. Sentence 2: one specific observation. Nothing after sentence 2 — stop there.' },
+  { id:'beat',   weight:20, type:'medium', constraint:'2-3 sentences. Fact + one observation. Stop after sentence 3.' },
+  { id:'open',   weight:10, type:'medium', constraint:'2-3 sentences. Fact + observation + a genuine open question (not rhetorical — an actual unknown). Stop after the question.' },
+  { id:'build',  weight: 5, type:'long',   constraint:'Exactly 3 sentences. All 3 formula moves: fact, tension, open question. Stop after sentence 3.' },
+  { id:'long',   weight: 5, type:'long',   constraint:'3-4 sentences. All formula moves. 4 sentences maximum — stop there.' },
 ];
 
 function pickTemplates() {
@@ -442,15 +442,17 @@ function buildTaskBlock(templates) {
     `Tweet ${i + 1} [return type: "${t.type}"]: ${t.constraint}`
   ).join('\n');
   return `TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
-Each tweet has a hard structural constraint. Follow it exactly. Word count is a hard ceiling — do not exceed it.
+Each tweet has a hard structural constraint. Sentence count is absolute — stop writing when the sentence count is reached.
 
 ${slots}
+
+BEFORE RETURNING: Count sentences in each tweet. If any tweet exceeds its sentence count, delete from the first extra sentence onward. No exceptions.
 
 Return JSON array of exactly 3 objects in slot order:
 - "type": the value shown in brackets for that slot
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
-- "tweet": tweet text — must satisfy the constraint for its slot
+- "tweet": tweet text — must satisfy the sentence constraint for its slot
 Return ONLY raw JSON array.`;
 }
 
@@ -607,11 +609,11 @@ function getTovResearchGuidance(tovKey) {
   return opt ? ' ' + opt.research : '';
 }
 function buildResearchMsg(topicKey, tovKey) {
-  const base = 'Search the web for the most interesting stories from TODAY';
+  const base = 'Search the web broadly for today\'s most significant stories. Prioritize by real-world impact and early signal — not by traffic or trending. Look beyond the obvious tech blogs and entertainment sites. Find stories from industry trade publications, earnings reports, regulatory filings, academic research, niche forums, and international sources that haven\'t been saturated yet. Avoid stories that are already everywhere. Find what smart people in these industries will be talking about tomorrow, not what everyone is already talking about today.';
   const guidance = getTovResearchGuidance(tovKey);
-  if (!topicKey) return base + ' across Tech & AI, Culture & Media, and Brand & Marketing.' + guidance;
+  if (!topicKey) return base + ' Cover Tech & AI, Culture & Media, and Brand & Marketing.' + guidance;
   const opt = TOPIC_OPTIONS.find(o => o.key === topicKey);
-  return base + `. Focus ONLY on ${opt.value} stories. Ignore other topics entirely.` + guidance;
+  return base + ` Focus ONLY on ${opt.value} stories. Ignore other topics entirely.` + guidance;
 }
 
 function buildSelectorRow(containerId, options, activeKey, onToggle) {
@@ -810,7 +812,7 @@ async function generateOriginal() {
     console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
     const system = buildSystemPrompt(buildOrigSystem(templates), null, null, null);
     console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
-    const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
+    const msg = 'Search the web broadly for today\'s most significant stories across Tech & AI, Culture & Media, and Brand & Marketing. Prioritize by real-world impact and early signal — not by traffic or trending. Look beyond the obvious tech blogs and entertainment sites. Find stories from industry trade publications, earnings reports, regulatory filings, academic research, niche forums, and international sources that haven\'t been saturated yet. Avoid stories that are already everywhere. Find what smart people in these industries will be talking about tomorrow, not what everyone is already talking about today.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
   } catch(e) {
@@ -966,7 +968,7 @@ async function findTrending() {
     const allTweets = [];
     for (const q of TRENDING_QUERIES) {
       try {
-        const data = await fetchXTweets(q.q, 5);
+        const data = await fetchXSearch(q.q, 5);
         if (data.data && data.includes) {
           const users = {};
           (data.includes.users || []).forEach(u => users[u.id] = u);
