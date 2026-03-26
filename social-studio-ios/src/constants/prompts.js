@@ -83,6 +83,9 @@ BAD version added: "Hollywood keeps saying audiences want franchises. Audiences 
 GOOD: "A major drinks brand is now treating AI models like influencers, optimizing for LLM visibility the same way they'd manage a creator relationship. Meanwhile ChatGPT ads are rolling out at ~$60 CPM and Google is openly signaling ads inside Gemini."
 BAD version added: "The next media buying war isn't on a platform. It's inside the answer." — packages the tension into a soundbite. Fortune cookie. Cut it.
 
+GOOD: "Sam Altman is no longer overseeing safety. He's running supply chains and building data centers."
+BAD version added: "The CEO of the most watched AI company on earth is now, essentially, a logistics operator." — reframes what the facts already showed. The facts are the point. Cut it.
+
 Rule of thumb: if the last sentence could stand alone as a tweet, it's a closer. Cut it.
 
 LENGTH — vary radically between posts. This is critical:
