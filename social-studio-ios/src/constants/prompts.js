@@ -130,13 +130,13 @@ VOICE RULES:
 HIS WORLD: Gaming, creator economy, brand marketing, culture, AI, platforms. Been ahead of every major curve. Curious about where things are heading, not certain.`;
 
 export const TWEET_TEMPLATES = [
-  { id: 'flash',  weight: 20, type: 'short',  constraint: '1 sentence, max 10 words. Fact only. Hard ceiling — do not exceed.' },
-  { id: 'drop',   weight: 20, type: 'short',  constraint: '1-2 sentences, max 18 words. Fact only. Hard ceiling.' },
-  { id: 'sharp',  weight: 20, type: 'short',  constraint: '2 sentences, max 28 words. Fact + one specific observation. Hard ceiling.' },
-  { id: 'beat',   weight: 20, type: 'medium', constraint: '2-3 sentences, max 40 words. Fact + observation. Hard ceiling.' },
-  { id: 'open',   weight: 10, type: 'medium', constraint: '2-3 sentences, max 45 words. Fact + observation + a genuine open question (not rhetorical). Hard ceiling.' },
-  { id: 'build',  weight:  5, type: 'long',   constraint: '3 sentences, max 55 words. Fact + observation + open question. Hard ceiling.' },
-  { id: 'long',   weight:  5, type: 'long',   constraint: '3-4 sentences, max 70 words. All formula moves. Hard ceiling.' },
+  { id: 'flash',  weight: 20, type: 'short',  constraint: '1 sentence only. Just the fact. Stop after the period. Delete anything after the first sentence.' },
+  { id: 'drop',   weight: 20, type: 'short',  constraint: '1-2 sentences. Fact only. If you wrote 2 sentences, delete the second unless it is strictly the fact and nothing else.' },
+  { id: 'sharp',  weight: 20, type: 'short',  constraint: 'Exactly 2 sentences. Sentence 1: the fact. Sentence 2: one specific observation. Nothing after sentence 2 — stop there.' },
+  { id: 'beat',   weight: 20, type: 'medium', constraint: '2-3 sentences. Fact + one observation. Stop after sentence 3.' },
+  { id: 'open',   weight: 10, type: 'medium', constraint: '2-3 sentences. Fact + observation + a genuine open question (not rhetorical — an actual unknown). Stop after the question.' },
+  { id: 'build',  weight:  5, type: 'long',   constraint: 'Exactly 3 sentences. All 3 formula moves: fact, tension, open question. Stop after sentence 3.' },
+  { id: 'long',   weight:  5, type: 'long',   constraint: '3-4 sentences. All formula moves. 4 sentences maximum — stop there.' },
 ];
 
 export function pickTemplates() {
@@ -161,15 +161,17 @@ function buildTaskBlock(templates) {
     `Tweet ${i + 1} [return type: "${t.type}"]: ${t.constraint}`
   ).join('\n');
   return `TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
-Each tweet has a hard structural constraint. Follow it exactly. Word count is a hard ceiling — do not exceed it.
+Each tweet has a hard structural constraint. Sentence count is absolute — stop writing when the sentence count is reached.
 
 ${slots}
+
+BEFORE RETURNING: Count sentences in each tweet. If any tweet exceeds its sentence count, delete from the first extra sentence onward. No exceptions.
 
 Return JSON array of exactly 3 objects in slot order:
 - "type": the value shown in brackets for that slot
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
 - "headline": story it connects to (1 short line)
-- "tweet": tweet text — must satisfy the constraint for its slot
+- "tweet": tweet text — must satisfy the sentence constraint for its slot
 Return ONLY raw JSON array.`;
 }
 
@@ -213,6 +215,15 @@ Rules:
 - No bullet listicles — real paragraphs
 - No quotes from famous people — sounds dated
 - End naturally. Sometimes a question, sometimes a sharp observation, sometimes just stop. Never force an ending.
+
+WRONG ending (explains the observation instead of stopping):
+"Those are very different capabilities, and most organizations that rushed to production don't have the second one yet."
+
+RIGHT ending (stops after the observation):
+[nothing — the post ends at the observation. The reader draws their own conclusion.]
+
+The pattern to eliminate: after making a sharp observation, Claude adds a sentence that explains what the observation means or what's missing. That sentence is always the one to cut.
+
 - 2-3 hashtags at end
 - Never use em dashes (--) or hyphens to connect clauses. Use commas or periods instead. This is critical.
 - Never use italic, bold, or any markdown formatting. Plain text only.
