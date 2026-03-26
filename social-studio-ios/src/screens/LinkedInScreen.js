@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI } from '../api/anthropic';
-import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM, buildSystemPrompt, buildResearchMsg } from '../constants/prompts';
+import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM, buildSystemPrompt, buildResearchMsg, pickLinkedInEnding } from '../constants/prompts';
 import TovSelector from '../components/TovSelector';
 import TopicSelector from '../components/TopicSelector';
 import LengthSelector from '../components/LengthSelector';
@@ -35,7 +35,9 @@ export default function LinkedInScreen() {
       const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, researchMsg, true, 800);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setPhase('drafting');
-      const system = buildSystemPrompt(LINKEDIN_SYSTEM, { tov, length: liLength, topic });
+      const ending = pickLinkedInEnding();
+      const system = buildSystemPrompt(LINKEDIN_SYSTEM, { tov, length: liLength, topic })
+        + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all 3 posts.`;
       const results = await callAPI(system, buildGenerationPrompt(topics), false);
       setCards(results);
     } catch (e) {

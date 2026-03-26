@@ -195,6 +195,21 @@ export function buildOrigSystem(templates) {
   return TWEET_VOICE + '\n\n' + buildTaskBlock(templates);
 }
 
+export const LINKEDIN_ENDINGS = [
+  { id: 'question',    weight: 20, instruction: 'End each post with a genuine self-directed question — wondering out loud, not challenging the reader.' },
+  { id: 'observation', weight: 30, instruction: 'End each post with a sharp specific observation that doesn\'t resolve.' },
+  { id: 'stop',        weight: 50, instruction: 'Just stop — no special ending. The last substantive sentence is the end. Do not add any closing line.' },
+];
+export function pickLinkedInEnding() {
+  const total = LINKEDIN_ENDINGS.reduce((s, e) => s + e.weight, 0);
+  let r = Math.random() * total;
+  for (const ending of LINKEDIN_ENDINGS) {
+    r -= ending.weight;
+    if (r <= 0) return ending;
+  }
+  return LINKEDIN_ENDINGS[LINKEDIN_ENDINGS.length - 1];
+}
+
 export const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.
 
 Search the web RIGHT NOW for hottest conversations and debates gaining traction in Tech & AI, Culture & Media, Brand & Marketing. Look at news, Reddit, LinkedIn, blogs, forums. Find topics where a sharp exec's voice adds real value.
@@ -230,7 +245,6 @@ Rules:
 - Can show career reflection — Matt is in job search mode
 - No bullet listicles — real paragraphs
 - No quotes from famous people — sounds dated
-- End naturally. Sometimes a question, sometimes a sharp observation, sometimes just stop. Never force an ending.
 
 WRONG ending (explains the observation instead of stopping):
 "Those are very different capabilities, and most organizations that rushed to production don't have the second one yet."
