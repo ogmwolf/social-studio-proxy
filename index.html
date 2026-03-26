@@ -215,10 +215,6 @@
       <span class="selector-label">Topic</span>
       <div class="selector-row" id="topic-li-row"></div>
     </div>
-    <div class="selector-block">
-      <span class="selector-label">Post Length</span>
-      <div class="selector-row" id="length-li-row"></div>
-    </div>
     <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>💼</span> Research & Draft Today's LinkedIn Posts</button>
     <div id="li-error" class="error-box" style="display:none"></div>
     <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
@@ -496,6 +492,15 @@ Rules:
 - No bullet listicles — real paragraphs
 - No quotes from famous people — sounds dated
 - End naturally. Sometimes a question, sometimes a sharp observation, sometimes just stop. Never force an ending.
+
+WRONG ending (explains the observation instead of stopping):
+"Those are very different capabilities, and most organizations that rushed to production don't have the second one yet."
+
+RIGHT ending (stops after the observation):
+[nothing — the post ends at the observation. The reader draws their own conclusion.]
+
+The pattern to eliminate: after making a sharp observation, Claude adds a sentence that explains what the observation means or what's missing. That sentence is always the one to cut.
+
 - 2-3 hashtags at end
 - Never use em dashes (--) or hyphens to connect clauses. Use commas or periods instead. This is critical.
 - Never use italic, bold, or any markdown formatting. Plain text only.
