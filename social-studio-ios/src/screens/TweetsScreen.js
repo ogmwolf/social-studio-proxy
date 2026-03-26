@@ -19,7 +19,10 @@ export default function TweetsScreen() {
     setError('');
     setCards([]);
     try {
-      const system = buildSystemPrompt(buildOrigSystem(pickTemplates()));
+      const templates = pickTemplates();
+      console.log('[Tweets] Templates selected:', templates.map(t => `${t.id}(${t.type}, max ${t.constraint.match(/max (\d+) words/)?.[1] ?? '?'}w)`).join(', '));
+      const system = buildSystemPrompt(buildOrigSystem(templates));
+      console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
       const msg = 'Search the web for the most interesting stories from TODAY across Tech & AI, Culture & Media, and Brand & Marketing. Write tweets in my voice — mix of types. Punchy, human, worth reading.';
       const results = await callAPI(system, msg, true);
       setCards(results);
