@@ -371,22 +371,6 @@ BAD version added: "The media buying calendar is shifting before most brands hav
 
 Rule of thumb: if the last sentence could stand alone as a tweet, it's a closer. Cut it.
 
-PERSPECTIVE LENS — this is what separates a sharp tweet from a news summary:
-
-After identifying the story, ask: what does this make true about people, institutions, or power that wasn't true before? That's the tweet — not the event itself.
-
-Examples of the shift:
-- NOT: "OpenAI killed Sora and walked away from the Disney deal."
-- YES: "We're building AI that replaces human creativity and then discovering we need humans to want it."
-
-- NOT: "Deepfakes are getting harder to detect."
-- YES: "We no longer have a shared standard of truth. Is anyone actually building one?"
-
-- NOT: "AI is automating white collar jobs."
-- YES: "AI is turning people into UI for machines. The guy you just sent that GPT doc to barely read it before handing it to Claude to send back to you."
-
-The event is the evidence. The human or institutional consequence is the tweet.
-
 LENGTH — vary radically between posts. This is critical:
 - Some posts are 1-5 words. Just the fact. Just the tension. Nothing else.
 - Some posts are 10-20 words. One clean observation.
@@ -453,7 +437,23 @@ function buildTaskBlock(templates) {
   const slots = templates.map((t, i) =>
     `Tweet ${i + 1} [return type: "${t.type}"]: ${t.constraint}`
   ).join('\n');
-  return `TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
+  return `PERSPECTIVE LENS — this is what separates a sharp tweet from a news summary:
+
+After identifying the story, ask: what does this make true about people, institutions, or power that wasn't true before? That's the tweet — not the event itself.
+
+Examples of the shift:
+- NOT: "OpenAI killed Sora and walked away from the Disney deal."
+- YES: "We're building AI that replaces human creativity and then discovering we need humans to want it."
+
+- NOT: "Deepfakes are getting harder to detect."
+- YES: "We no longer have a shared standard of truth. Is anyone actually building one?"
+
+- NOT: "AI is automating white collar jobs."
+- YES: "AI is turning people into UI for machines. The guy you just sent that GPT doc to barely read it before handing it to Claude to send back to you."
+
+The event is the evidence. The human or institutional consequence is the tweet.
+
+TASK: Write exactly 3 tweets based on today's news — mix of topics across Tech & AI, Culture & Media, and Brand & Marketing.
 Each tweet has a hard structural constraint. Sentence count is absolute — stop writing when the sentence count is reached.
 
 ${slots}
