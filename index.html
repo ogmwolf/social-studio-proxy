@@ -604,25 +604,18 @@ let activeTovReply = null;
 let activeTovPaste = null;
 let activeTovLi    = null;
 let activeTopicLi   = null;
-let activeLiLength  = 'medium';
-
 function getTovModifier(key) {
   if (!key) return '';
   const opt = TOV_OPTIONS.find(o => o.key === key);
   return opt ? '\n\nTONE: ' + opt.modifier : '';
-}
-function getLengthModifier(key) {
-  if (!key || key === 'medium') return '';
-  const opt = LENGTH_OPTIONS.find(o => o.key === key);
-  return (opt && opt.modifier) ? '\n\nLENGTH: ' + opt.modifier : '';
 }
 function getTopicModifier(key) {
   if (!key) return '';
   const opt = TOPIC_OPTIONS.find(o => o.key === key);
   return opt ? `\n\nCOUNT AND TOPIC OVERRIDE: Write exactly 1 post. Focus ONLY on ${opt.value} stories. Ignore other topics entirely. Set the topic field to "${opt.value}". Return JSON array of exactly 1 object.` : '';
 }
-function buildSystemPrompt(base, tov, length, topic) {
-  return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getLengthModifier(length) + getTopicModifier(topic);
+function buildSystemPrompt(base, tov, topic) {
+  return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getTopicModifier(topic);
 }
 function getTovResearchGuidance(tovKey) {
   if (!tovKey) return '';
@@ -645,21 +638,10 @@ function buildSelectorRow(containerId, options, activeKey, onToggle) {
     return `<button class="${cls}" onclick="${onToggle}('${o.key}')">${o.label}</button>`;
   }).join('');
 }
-function buildLengthRow() {
-  const row = document.getElementById('length-li-row');
-  if (!row) return;
-  row.innerHTML = LENGTH_OPTIONS.map(o => {
-    const cls = 'sel-pill' + (activeLiLength === o.key ? ' active li' : '');
-    return `<button class="${cls}" onclick="toggleLength('${o.key}')">${o.label}</button>`;
-  }).join('');
-}
-
 function toggleTovReply(key) { activeTovReply = activeTovReply === key ? null : key; buildSelectorRow('tov-reply-row', TOV_OPTIONS, activeTovReply, 'toggleTovReply'); }
 function toggleTovPaste(key) { activeTovPaste = activeTovPaste === key ? null : key; buildSelectorRow('tov-paste-row', TOV_OPTIONS, activeTovPaste, 'toggleTovPaste'); }
 function toggleTovLi(key)    { activeTovLi    = activeTovLi    === key ? null : key; buildSelectorRow('tov-li-row',    TOV_OPTIONS, activeTovLi,    'toggleTovLi');    }
 function toggleTopicLi(key)  { activeTopicLi   = activeTopicLi   === key ? null : key; buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');   }
-function toggleLength(key)   { activeLiLength  = activeLiLength  === key && key !== 'medium' ? 'medium' : key; buildLengthRow(); }
-
 function switchTab(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -831,7 +813,7 @@ async function generateOriginal() {
     const templates = pickTemplates();
     console.log('[Tweets] Templates selected:', templates.map(t => `${t.id}(${t.type})`).join(', '));
     console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
-    const system = buildSystemPrompt(buildOrigSystem(templates), null, null, null);
+    const system = buildSystemPrompt(buildOrigSystem(templates), null, null);
     console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
     const msg = 'Search the web broadly for today\'s most significant stories across Tech & AI, Culture & Media, and Brand & Marketing. Prioritize by real-world impact and early signal — not by traffic or trending. Look beyond the obvious tech blogs and entertainment sites. Find stories from industry trade publications, earnings reports, regulatory filings, academic research, niche forums, and international sources that haven\'t been saturated yet. Avoid stories that are already everywhere. Find what smart people in these industries will be talking about tomorrow, not what everyone is already talking about today.';
     data.orig = await callAPI(system, msg);
@@ -1108,7 +1090,7 @@ async function generateReply() {
   document.getElementById('reply-footer').style.display='none';
   try {
     const replyCtx = selected.linkContext ? `\n\nLinked article context: ${selected.linkContext}` : '';
-    data.reply = await callAPI(buildSystemPrompt(REPLY_SYSTEM, activeTovReply, null, null),`Write 3 reply options to this:\n\n"${selected.tweet}"${replyCtx}\n\nSource: ${selected.author}`,false);
+    data.reply = await callAPI(buildSystemPrompt(REPLY_SYSTEM, activeTovReply, null),`Write 3 reply options to this:\n\n"${selected.tweet}"${replyCtx}\n\nSource: ${selected.author}`,false);
     renderCards(data.reply,'reply','reply-cards','reply-footer');
   } catch(e) {
     document.getElementById('reply-error').textContent='Something went wrong — try again.';
@@ -1133,7 +1115,7 @@ async function generatePastedReply() {
   document.getElementById('paste-cards').innerHTML='';
   document.getElementById('paste-footer').style.display='none';
   try {
-    data.paste = await callAPI(buildSystemPrompt(REPLY_SYSTEM, activeTovPaste, null, null),`Write 3 reply options to this tweet:\n\n"${text}"`,false);
+    data.paste = await callAPI(buildSystemPrompt(REPLY_SYSTEM, activeTovPaste, null),`Write 3 reply options to this tweet:\n\n"${text}"`,false);
     renderCards(data.paste,'paste','paste-cards','paste-footer');
   } catch(e) {
     document.getElementById('paste-error').textContent='Something went wrong — try again.';
@@ -1160,7 +1142,7 @@ async function generateLinkedIn() {
 
     await new Promise(resolve => setTimeout(resolve, 2000));
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
-    const system = buildSystemPrompt(LINKEDIN_SYSTEM, activeTovLi, activeLiLength, activeTopicLi);
+    const system = buildSystemPrompt(LINKEDIN_SYSTEM, activeTovLi, activeTopicLi);
     data.li = await callAPI(system, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
   } catch(e) {
@@ -1201,7 +1183,6 @@ window.addEventListener('DOMContentLoaded', () => {
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   buildSelectorRow('tov-li-row',     TOV_OPTIONS,   activeTovLi,     'toggleTovLi');
   buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');
-  buildLengthRow();
 });
 </script>
 </div>
