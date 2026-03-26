@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, TextInput, StyleSheet,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { colors, typeColors, typeLabels, topicColors } from '../constants/theme';
+import { colors, topicColors } from '../constants/theme';
 
 // mode: "tweet" | "linkedin"
 export default function PostCard({ card, mode }) {
@@ -18,7 +18,6 @@ export default function PostCard({ card, mode }) {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const typeColor  = typeColors[card.type]   || colors.purple;
   const topicColor = topicColors[card.topic] || colors.muted;
 
   return (
@@ -26,13 +25,6 @@ export default function PostCard({ card, mode }) {
 
       {/* Tags — pill shape */}
       <View style={styles.tags}>
-        {card.type && (
-          <View style={[styles.tag, { borderColor: typeColor }]}>
-            <Text style={[styles.tagText, { color: typeColor }]}>
-              {typeLabels[card.type] || card.type}
-            </Text>
-          </View>
-        )}
         {card.topic && (
           <View style={[styles.tag, { borderColor: topicColor }]}>
             <Text style={[styles.tagText, { color: topicColor }]}>
