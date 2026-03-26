@@ -96,7 +96,7 @@ LENGTH — vary radically between posts. This is critical:
 - Real humans vary wildly. Synthesize that.
 
 Examples of length variation on the same story:
-One sentence: "AI is turning people into UI for machines."
+One sentence: "Cursor is selling American AI independence on a Chinese open-source foundation."
 Very short: "OpenAI killed Sora. Interesting timing."
 Short: "OpenAI killed Sora and walked away from Disney in the same week. Two consumer bets, gone."
 Medium: "OpenAI just killed Sora and walked away from the Disney deal. Two consumer bets, gone in the same week. I keep wondering what the internal framing is for products that get shelved this fast."
