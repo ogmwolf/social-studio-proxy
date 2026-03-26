@@ -360,3 +360,12 @@ export function buildResearchMsg(topic = null, tov = null) {
   const opt = TOPIC_OPTIONS.find(o => o.key === topic);
   return base + `. Focus ONLY on ${opt ? opt.value : ''} stories. Ignore other topics entirely.` + guidance;
 }
+
+export function buildCategoryResearchSystem(category) {
+  return `You are a research assistant for a senior marketing exec. Search the web for today's single most significant story in the ${category} space. Find something with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.\n\nReturn ONLY a raw JSON object:\n- "topic": "${category}"\n- "headline": short story title (1 line)\n- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today\n\nNo preamble. No commentary. Raw JSON object only.`;
+}
+
+export function buildCategoryResearchMsg(category, tov = null) {
+  const guidance = getTovResearchGuidance(tov);
+  return `Find today's most significant story in ${category}. Look beyond the obvious outlets — trade publications, earnings calls, regulatory filings, niche communities, international sources. Prioritize early signal over saturation.${guidance ? ' ' + guidance : ''}`;
+}

@@ -60,6 +60,29 @@ export async function callAPI(system, msg, search = true, maxTokens = 4000) {
   return JSON.parse(text.slice(s, e + 1));
 }
 
+// Single-object Haiku call. Web search enabled. Returns parsed JSON object.
+export async function callAPIHaiku(system, msg) {
+  const body = {
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 400,
+    system: system,
+    messages: [{ role: 'user', content: msg }],
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+  };
+
+  const d = await claudeFetch(body);
+
+  const text = (d.content || [])
+    .filter(b => b.type === 'text')
+    .map(b => b.text)
+    .join('');
+
+  const s = text.indexOf('{');
+  const e = text.lastIndexOf('}');
+  if (s === -1 || e === -1) throw new Error('No JSON object in response');
+  return JSON.parse(text.slice(s, e + 1));
+}
+
 // Single-object call. No web search. Returns parsed JSON object.
 export async function callAPIObj(system, msg) {
   const body = {

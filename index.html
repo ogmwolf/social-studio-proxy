@@ -688,6 +688,29 @@ async function callAPIObj(system, msg) {
   return JSON.parse(clean.slice(s,e+1));
 }
 
+async function callAPIHaiku(system, msg) {
+  const body = {
+    model:'claude-haiku-4-5-20251001',
+    max_tokens:400,
+    system: system,
+    messages:[{role:'user',content:msg}],
+    tools:[{type:'web_search_20250305', name:'web_search'}]
+  };
+  const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const d = await res.json();
+  const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
+  const s=text.indexOf('{'), e=text.lastIndexOf('}');
+  if (s===-1||e===-1) throw new Error('No JSON found');
+  return JSON.parse(text.slice(s,e+1));
+}
+
+async function researchCategory(category, tovKey) {
+  const system = `You are a research assistant for a senior marketing exec. Search the web for today's single most significant story in the ${category} space. Find something with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.\n\nReturn ONLY a raw JSON object:\n- "topic": "${category}"\n- "headline": short story title (1 line)\n- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today\n\nNo preamble. No commentary. Raw JSON object only.`;
+  const guidance = getTovResearchGuidance(tovKey);
+  const msg = `Find today's most significant story in ${category}. Look beyond the obvious outlets — trade publications, earnings calls, regulatory filings, niche communities, international sources. Prioritize early signal over saturation.${guidance ? ' ' + guidance : ''}`;
+  return callAPIHaiku(system, msg);
+}
+
 function busy(btnId, loadId, on, label, loadText) {
   const b=document.getElementById(btnId), l=document.getElementById(loadId);
   b.disabled=on;
@@ -1140,14 +1163,21 @@ async function generateLinkedIn() {
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
   try {
-    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Finding today\'s stories...');
-    const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, buildResearchMsg(activeTopicLi, activeTovLi), true, 800);
+    const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing'];
+    const cats = activeTopicLi
+      ? [TOPIC_OPTIONS.find(o => o.key === activeTopicLi).value]
+      : allCats;
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts',`Researching ${cats.join(', ')}...`);
+
+    const settled = await Promise.all(cats.map(cat => researchCategory(cat, activeTovLi).catch(() => null)));
+    const topics = settled.filter(Boolean);
+    if (topics.length === 0) throw new Error('All research calls failed');
+
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
     const ending = pickLinkedInEnding();
     const system = buildSystemPrompt(LINKEDIN_SYSTEM, activeTovLi, activeTopicLi)
-      + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all 3 posts.`;
+      + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
     data.li = await callAPI(system, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
   } catch(e) {

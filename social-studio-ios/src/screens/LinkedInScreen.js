@@ -4,11 +4,10 @@ import {
   StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { callAPI } from '../api/anthropic';
-import { LINKEDIN_SYSTEM, LINKEDIN_RESEARCH_SYSTEM, buildSystemPrompt, buildResearchMsg, pickLinkedInEnding } from '../constants/prompts';
+import { callAPI, callAPIHaiku } from '../api/anthropic';
+import { LINKEDIN_SYSTEM, TOPIC_OPTIONS, buildSystemPrompt, buildCategoryResearchSystem, buildCategoryResearchMsg, pickLinkedInEnding } from '../constants/prompts';
 import TovSelector from '../components/TovSelector';
 import TopicSelector from '../components/TopicSelector';
-import LengthSelector from '../components/LengthSelector';
 import PostCard from '../components/PostCard';
 import { colors } from '../constants/theme';
 
@@ -24,20 +23,33 @@ export default function LinkedInScreen() {
   const [error, setError]     = useState('');
   const [tov, setTov]         = useState(null);
   const [topic, setTopic]     = useState(null);
-  const [liLength, setLiLength] = useState('medium');
+
+  const ALL_CATS = ['Tech & AI', 'Culture & Media', 'Brand & Marketing'];
 
   async function generate() {
     setPhase('researching');
     setError('');
     setCards([]);
     try {
-      const researchMsg = buildResearchMsg(topic, tov);
-      const topics = await callAPI(LINKEDIN_RESEARCH_SYSTEM, researchMsg, true, 800);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const cats = topic
+        ? [TOPIC_OPTIONS.find(o => o.key === topic).value]
+        : ALL_CATS;
+
+      console.log('[LinkedIn] Researching categories:', cats);
+      const settled = await Promise.all(
+        cats.map(cat =>
+          callAPIHaiku(buildCategoryResearchSystem(cat), buildCategoryResearchMsg(cat, tov))
+            .catch(err => { console.warn(`[LinkedIn] Research failed for ${cat}:`, err.message); return null; })
+        )
+      );
+      const topics = settled.filter(Boolean);
+      if (topics.length === 0) throw new Error('All research calls failed');
+      console.log('[LinkedIn] Research complete:', topics.map(t => t.topic).join(', '));
+
       setPhase('drafting');
       const ending = pickLinkedInEnding();
-      const system = buildSystemPrompt(LINKEDIN_SYSTEM, { tov, length: liLength, topic })
-        + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all 3 posts.`;
+      const system = buildSystemPrompt(LINKEDIN_SYSTEM, { tov, topic })
+        + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
       const results = await callAPI(system, buildGenerationPrompt(topics), false);
       setCards(results);
     } catch (e) {
@@ -71,7 +83,6 @@ export default function LinkedInScreen() {
 
         <TovSelector value={tov} onChange={setTov} />
         <TopicSelector value={topic} onChange={setTopic} />
-        <LengthSelector value={liLength} onChange={setLiLength} />
 
         <TouchableOpacity
           style={[styles.button, !!phase && styles.buttonDisabled]}
