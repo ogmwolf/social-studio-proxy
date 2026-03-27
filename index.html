@@ -700,6 +700,7 @@ async function callAPIHaiku(system, msg, search=true, maxTokens=400) {
 }
 
 async function researchCategory(category, tovKey) {
+  console.log(`[LinkedIn] STEP 1 HAIKU [${category}] — model: claude-haiku-4-5-20251001`);
   const system = `You are a research assistant for a senior marketing exec. Search the web for today's single most significant story in the ${category} space. Find something with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.\n\nReturn ONLY a raw JSON object:\n- "topic": "${category}"\n- "headline": short story title (1 line)\n- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today\n\nNo preamble. No commentary. Raw JSON object only.`;
   const guidance = getTovResearchGuidance(tovKey);
   const msg = `Find today's most significant story in ${category}. Look beyond the obvious outlets — trade publications, earnings calls, regulatory filings, niche communities, international sources. Prioritize early signal over saturation.${guidance ? ' ' + guidance : ''}`;
@@ -1185,6 +1186,7 @@ async function generateLinkedIn() {
     if (topics.length > 1) {
       busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Ranking today\'s stories...');
       try {
+        console.log('[LinkedIn] STEP RANKING HAIKU — model: claude-haiku-4-5-20251001, search: false, max_tokens: 150');
         const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
         if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
           const reordered = rankResult.ranked.map(cat => topics.find(t => t.topic === cat)).filter(Boolean);
@@ -1198,6 +1200,7 @@ async function generateLinkedIn() {
     const ending = pickLinkedInEnding();
     const system = buildSystemPrompt(LINKEDIN_SYSTEM, activeTovLi, activeTopicLi)
       + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
+    console.log('[LinkedIn] STEP 2 SONNET — model: claude-sonnet-4-6, search: false, topics:', topics.map(t => t.topic).join(' → '));
     data.li = await callAPI(system, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
   } catch(e) {
