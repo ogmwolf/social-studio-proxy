@@ -454,13 +454,13 @@ Examples of the shift:
 
 The event is the evidence. The human or institutional consequence is the tweet.
 
-TASK: Write exactly 5 tweets based on today's news. Cover all three categories — Tech & AI, Culture & Media, and Brand & Marketing — with at least 1 tweet per category. Assign the remaining 2 tweets to whichever categories have the strongest stories today.
+TASK: Write exactly 5 tweets based on today's news. Cover all four categories — Tech & AI, Culture & Media, Brand & Marketing, and Gaming — with at least 1 tweet per category. Assign the remaining tweet to whichever category has the strongest story today.
 
 BEFORE RETURNING: Count sentences in each tweet against its constraint above. If any tweet exceeds its sentence count, delete from the first extra sentence onward. No exceptions.
 
 Return JSON array of exactly 5 objects in slot order:
 - "type": the value shown in brackets for that slot
-- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"|"Gaming"
 - "headline": story it connects to (1 short line)
 - "tweet": tweet text — must satisfy the sentence constraint for its slot
 Return ONLY raw JSON array.`;
@@ -584,7 +584,7 @@ This is NOT a reply. It's Matt originating the idea himself, inspired by what's 
 - Return JSON object with: "tweet" (the rewritten post) and "angle" (one sentence on the angle taken)
 Return ONLY raw JSON object.`;
 
-const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
+const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b', 'Gaming':'#22c55e' };
 
 let data = { orig:[], reply:[], paste:[], li:[] };
 let trending = [], selected = null;
@@ -861,7 +861,7 @@ async function generateOriginal() {
     console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
     const system = buildSystemPrompt(buildOrigSystem(templates), null, null);
     console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
-    const msg = 'Search broadly for today\'s most significant stories across Tech & AI, Culture & Media, and Brand & Marketing. Lead with the biggest, most important story of the day regardless of category — then fill the remaining slots with the strongest stories across all three categories, ensuring at least 1 tweet per category. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and professional communities. Prioritize early signal over saturation. Find what smart people will be talking about tomorrow, not what everyone is already covering today.';
+    const msg = 'Search broadly for today\'s most significant stories across Tech & AI, Culture & Media, Brand & Marketing, and Gaming. Lead with the biggest, most important story of the day regardless of category — then fill the remaining slots with the strongest stories across all four categories, ensuring at least 1 tweet per category. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and professional communities. Prioritize early signal over saturation. Find what smart people will be talking about tomorrow, not what everyone is already covering today.';
     data.orig = await callAPI(system, msg);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
   } catch(e) {
