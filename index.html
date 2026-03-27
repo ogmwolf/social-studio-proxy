@@ -34,7 +34,8 @@
   .li-btn-row { display: flex; gap: 8px; }
   .li-btn-row .gen-btn { flex: 1; width: auto; margin-bottom: 0; }
   #liFreshBtn { flex: 1; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-bottom: 0; justify-content: center; align-items: center; }
-  #liFreshBtn:hover { opacity: 0.9; }
+  #liFreshBtn:hover:not(:disabled) { opacity: 0.9; }
+  #liFreshBtn:disabled { opacity: 0.4; cursor: not-allowed; }
   .li-btn-row { margin-bottom: 24px; }
   .gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; }
@@ -1209,7 +1210,6 @@ function clearLinkedInCache() {
   try { localStorage.removeItem('ss_li_research'); } catch(e) { /* ignore */ }
   document.getElementById('li-cards').innerHTML = '';
   document.getElementById('li-footer').style.display = 'none';
-  document.getElementById('liFreshBtn').style.display = 'none';
   generateLinkedIn();
 }
 
@@ -1234,6 +1234,7 @@ async function generateLinkedIn() {
   document.getElementById('li-error').style.display='none';
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
+  document.getElementById('liFreshBtn').disabled = true;
 
   // Check cache: valid if same day AND same topic filter
   const cacheHit = liResearchCache
@@ -1291,6 +1292,7 @@ async function generateLinkedIn() {
   } finally {
     const inRewrite = liResearchCache && liResearchCache.date === getLiDateKey();
     busy('liBtn','li-loading',false, inRewrite ? '<span>✍️</span> Rewrite Posts' : '<span>🔍</span> Research & Draft LinkedIn Posts', '');
+    document.getElementById('liFreshBtn').disabled = false;
   }
 }
 
