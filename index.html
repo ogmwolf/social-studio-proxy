@@ -107,6 +107,9 @@
   .btn-copy-prompt { background: #1e1228; color: #a78bfa; border: 1px solid #a78bfa33 !important; }
   .btn-ideogram { background: #1a0f2e; color: #c084fc; border: 1px solid #c084fc22 !important; }
   .btn-chatgpt { background: #0a1a14; color: #34d399; border: 1px solid #34d39922 !important; }
+  .li-rewrite-hint { font-family: 'DM Mono', monospace; font-size: 10px; color: #444; letter-spacing: 0.5px; margin: 0 0 10px; }
+  .li-fresh-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; margin-bottom: 16px; transition: color 0.2s, border-color 0.2s; }
+  .li-fresh-btn:hover { color: var(--text); border-color: #444; }
 </style>
 </head>
 <body>
@@ -206,7 +209,7 @@
   <!-- LINKEDIN -->
   <div class="panel" id="panel-linkedin">
     <div class="li-badge">💼 LinkedIn Format</div>
-    <div class="selector-block">
+    <div class="selector-block" id="tov-li-block" style="display:none">
       <span class="selector-label">Tone of Voice</span>
       <div class="selector-row" id="tov-li-row"></div>
     </div>
@@ -214,7 +217,11 @@
       <span class="selector-label">Topic</span>
       <div class="selector-row" id="topic-li-row"></div>
     </div>
-    <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>💼</span> Research & Draft Today's LinkedIn Posts</button>
+    <div id="li-rewrite-info" style="display:none">
+      <p class="li-rewrite-hint">Using today's stories. Pick a tone and rewrite anytime.</p>
+      <button class="li-fresh-btn" onclick="clearLinkedInCache()">↺ Fresh Stories</button>
+    </div>
+    <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
     <div id="li-error" class="error-box" style="display:none"></div>
     <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
     <div id="li-cards" class="cards"></div>
@@ -585,6 +592,7 @@ const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Bran
 
 let data = { orig:[], reply:[], paste:[], li:[] };
 let trending = [], selected = null;
+let liResearchCache = null;
 
 // ── CONTENT BRIEF STATE ──
 const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever. No dashes of any kind — no em dashes, no en dashes, no hyphens used as connectors. Use commas or periods instead. This applies everywhere, without exception.`;
@@ -646,7 +654,15 @@ function buildSelectorRow(containerId, options, activeKey, onToggle) {
 function toggleTovReply(key) { activeTovReply = activeTovReply === key ? null : key; buildSelectorRow('tov-reply-row', TOV_OPTIONS, activeTovReply, 'toggleTovReply'); }
 function toggleTovPaste(key) { activeTovPaste = activeTovPaste === key ? null : key; buildSelectorRow('tov-paste-row', TOV_OPTIONS, activeTovPaste, 'toggleTovPaste'); }
 function toggleTovLi(key)    { activeTovLi    = activeTovLi    === key ? null : key; buildSelectorRow('tov-li-row',    TOV_OPTIONS, activeTovLi,    'toggleTovLi');    }
-function toggleTopicLi(key)  { activeTopicLi   = activeTopicLi   === key ? null : key; buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');   }
+function toggleTopicLi(key)  {
+  activeTopicLi = activeTopicLi === key ? null : key;
+  buildSelectorRow('topic-li-row', TOPIC_OPTIONS, activeTopicLi, 'toggleTopicLi');
+  // If the new filter matches the cache, stay in rewrite phase; otherwise drop to research
+  const stillValid = liResearchCache
+    && liResearchCache.date === getLiDateKey()
+    && liResearchCache.topicFilter === (activeTopicLi || 'all');
+  setLinkedInPhase(stillValid ? 'rewrite' : 'research');
+}
 function switchTab(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1157,6 +1173,55 @@ async function generatePastedReply() {
   }
 }
 
+// ── LINKEDIN CACHE ──
+function getLiDateKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function loadLinkedInCache() {
+  try {
+    const raw = localStorage.getItem('ss_li_research');
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed.date === getLiDateKey()) {
+      liResearchCache = parsed;
+    } else {
+      localStorage.removeItem('ss_li_research');
+    }
+  } catch(e) { /* ignore */ }
+}
+
+function saveLinkedInCache(topics) {
+  const entry = { date: getLiDateKey(), topicFilter: activeTopicLi || 'all', topics };
+  liResearchCache = entry;
+  try { localStorage.setItem('ss_li_research', JSON.stringify(entry)); } catch(e) { /* ignore */ }
+}
+
+function clearLinkedInCache() {
+  liResearchCache = null;
+  try { localStorage.removeItem('ss_li_research'); } catch(e) { /* ignore */ }
+  document.getElementById('li-cards').innerHTML = '';
+  document.getElementById('li-footer').style.display = 'none';
+  setLinkedInPhase('research');
+}
+
+function setLinkedInPhase(phase) {
+  // phase: 'research' | 'rewrite'
+  const tovBlock   = document.getElementById('tov-li-block');
+  const rewriteInfo = document.getElementById('li-rewrite-info');
+  const btn        = document.getElementById('liBtn');
+  if (phase === 'rewrite') {
+    tovBlock.style.display    = 'block';
+    rewriteInfo.style.display = 'block';
+    btn.innerHTML = '<span>✍️</span> Rewrite Posts';
+  } else {
+    tovBlock.style.display    = 'none';
+    rewriteInfo.style.display = 'none';
+    btn.innerHTML = '<span>🔍</span> Research & Draft LinkedIn Posts';
+  }
+}
+
 // ── LINKEDIN ──
 function buildLinkedInGenerationPrompt(topics) {
   const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
@@ -1168,35 +1233,51 @@ async function generateLinkedIn() {
   document.getElementById('li-error').style.display='none';
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
+
+  // Check cache: valid if same day AND same topic filter
+  const cacheHit = liResearchCache
+    && liResearchCache.date === getLiDateKey()
+    && liResearchCache.topicFilter === (activeTopicLi || 'all');
+
   try {
-    const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
-    const cats = activeTopicLi
-      ? [TOPIC_OPTIONS.find(o => o.key === activeTopicLi).value]
-      : allCats;
+    let topics;
 
-    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts',`Researching ${cats.join(', ')}...`);
+    if (cacheHit) {
+      topics = liResearchCache.topics;
+      busy('liBtn','li-loading',true,'<span>✍️</span> Rewrite Posts','Writing your posts...');
+    } else {
+      const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
+      const cats = activeTopicLi
+        ? [TOPIC_OPTIONS.find(o => o.key === activeTopicLi).value]
+        : allCats;
 
-    const settled = await Promise.all(cats.map(cat =>
-      researchCategory(cat, activeTovLi)
-        .catch(() => researchCategory(cat, activeTovLi))
-        .catch(() => null)
-    ));
-    let topics = settled.filter(Boolean);
-    if (topics.length === 0) throw new Error('All research calls failed');
+      busy('liBtn','li-loading',true,'<span>🔍</span> Research & Draft LinkedIn Posts',`Researching ${cats.join(', ')}...`);
 
-    if (topics.length > 1) {
-      busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Ranking today\'s stories...');
-      try {
-        const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
-        if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
-          const reordered = rankResult.ranked.map(cat => topics.find(t => t.topic === cat)).filter(Boolean);
-          topics.forEach(t => { if (!reordered.includes(t)) reordered.push(t); });
-          topics = reordered;
-        }
-      } catch(e) { /* fall through with original order */ }
+      const settled = await Promise.all(cats.map(cat =>
+        researchCategory(cat, activeTovLi)
+          .catch(() => researchCategory(cat, activeTovLi))
+          .catch(() => null)
+      ));
+      topics = settled.filter(Boolean);
+      if (topics.length === 0) throw new Error('All research calls failed');
+
+      if (topics.length > 1) {
+        busy('liBtn','li-loading',true,'<span>🔍</span> Research & Draft LinkedIn Posts','Ranking today\'s stories...');
+        try {
+          const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
+          if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
+            const reordered = rankResult.ranked.map(cat => topics.find(t => t.topic === cat)).filter(Boolean);
+            topics.forEach(t => { if (!reordered.includes(t)) reordered.push(t); });
+            topics = reordered;
+          }
+        } catch(e) { /* fall through with original order */ }
+      }
+
+      saveLinkedInCache(topics);
+      setLinkedInPhase('rewrite');
+      busy('liBtn','li-loading',true,'<span>🔍</span> Research & Draft LinkedIn Posts','Writing your posts...');
     }
 
-    busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
     const ending = pickLinkedInEnding();
     const system = buildSystemPrompt(LINKEDIN_SYSTEM, activeTovLi, activeTopicLi)
       + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
@@ -1206,7 +1287,8 @@ async function generateLinkedIn() {
     document.getElementById('li-error').textContent='Something went wrong — try again.';
     document.getElementById('li-error').style.display='block';
   } finally {
-    busy('liBtn','li-loading',false,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','');
+    const inRewrite = liResearchCache && liResearchCache.date === getLiDateKey();
+    busy('liBtn','li-loading',false, inRewrite ? '<span>✍️</span> Rewrite Posts' : '<span>🔍</span> Research & Draft LinkedIn Posts', '');
   }
 }
 
@@ -1240,6 +1322,8 @@ window.addEventListener('DOMContentLoaded', () => {
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   buildSelectorRow('tov-li-row',     TOV_OPTIONS,   activeTovLi,     'toggleTovLi');
   buildSelectorRow('topic-li-row',   TOPIC_OPTIONS, activeTopicLi,   'toggleTopicLi');
+  loadLinkedInCache();
+  setLinkedInPhase(liResearchCache ? 'rewrite' : 'research');
 });
 </script>
 </div>
