@@ -1153,7 +1153,7 @@ async function generatePastedReply() {
 function buildLinkedInGenerationPrompt(topics) {
   const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
   const count = topics.length === 1 ? '1 LinkedIn post' : `${topics.length} LinkedIn posts, one per topic`;
-  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nWrite ${count} in my voice. First line must hook.`;
+  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nBefore writing: scan for overlap. If two entries reference the same underlying news event, lawsuit, company, or announcement, pivot the weaker-fit one to a clearly different story in that category that you know about. Never write about the same event twice across the ${count}.\n\nWrite ${count} in my voice. First line must hook.`;
 }
 
 async function generateLinkedIn() {
