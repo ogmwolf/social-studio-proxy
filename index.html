@@ -31,10 +31,8 @@
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .gen-btn.li-btn { background: var(--linkedin); }
-  #li-cards-header { display: flex; justify-content: flex-end; margin-bottom: 12px; }
-  #liFreshBtn { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 5px 12px; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
-  #liFreshBtn:hover:not(:disabled) { color: var(--text); border-color: #444; }
-  #liFreshBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-fresh-card { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 5px 12px; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+  .btn-fresh-card:hover { color: var(--text); border-color: #444; }
   .gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; }
   .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #ffffff33; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -222,9 +220,6 @@
   <!-- LINKEDIN -->
   <div class="panel" id="panel-linkedin">
     <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
-    <div id="li-cards-header" style="display:none">
-      <button id="liFreshBtn" onclick="clearLinkedInCache()">↺ Fresh Stories</button>
-    </div>
     <div id="li-error" class="error-box" style="display:none"></div>
     <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
     <div id="li-cards" class="cards"></div>
@@ -754,6 +749,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       </div>` : '';
     const cardHeader = isLinkedIn
       ? `<div class="card-header">
+          <button class="btn-fresh-card" onclick="clearLinkedInCache()">↺ Fresh Stories</button>
           <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}</div>
           <button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>
         </div>`
@@ -1211,9 +1207,7 @@ function clearLinkedInCache() {
   generateLinkedIn();
 }
 
-function setLinkedInPhase(phase) {
-  document.getElementById('li-cards-header').style.display = phase === 'rewrite' ? 'flex' : 'none';
-}
+function setLinkedInPhase(phase) { /* no-op — Fresh Stories lives in card headers */ }
 
 // ── LINKEDIN ──
 function buildLinkedInGenerationPrompt(topics) {
@@ -1226,8 +1220,6 @@ async function generateLinkedIn() {
   document.getElementById('li-error').style.display='none';
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
-  document.getElementById('liFreshBtn').disabled = true;
-  document.getElementById('li-cards-header').style.display = 'none';
 
   // Check cache: valid if same day AND same topic filter
   const cacheHit = liResearchCache
@@ -1277,14 +1269,11 @@ async function generateLinkedIn() {
       + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
     data.li = await callAPI(system, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
-    setLinkedInPhase('rewrite');
   } catch(e) {
     document.getElementById('li-error').textContent='Something went wrong — try again.';
     document.getElementById('li-error').style.display='block';
   } finally {
     busy('liBtn','li-loading',false,'<span>🔍</span> Research & Draft LinkedIn Posts','');
-    document.getElementById('liFreshBtn').disabled = false;
-    if (liResearchCache) setLinkedInPhase('rewrite');
   }
 }
 
@@ -1333,7 +1322,6 @@ async function rewriteCard(key, i) {
       result[0].rewritten = true;
       data[key][i] = result[0];
       renderCards(data[key], key, 'li-cards', 'li-footer', true);
-      setLinkedInPhase('rewrite');
     }
   } catch(e) {
     btn.textContent = 'Failed — try again';
@@ -1371,7 +1359,6 @@ window.addEventListener('DOMContentLoaded', () => {
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   loadLinkedInCache();
   setLinkedInPhase(liResearchCache ? 'rewrite' : 'research');
-  if (liResearchCache) setLinkedInPhase('rewrite');
 });
 </script>
 </div>
