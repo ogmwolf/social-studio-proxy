@@ -1284,6 +1284,7 @@ async function generateLinkedIn() {
       + `\n\nENDING STYLE FOR THIS GENERATION: ${ending.instruction} Follow this exactly for all ${topics.length} posts.`;
     data.li = await callAPI(system, buildLinkedInGenerationPrompt(topics), false);
     renderCards(data.li,'li','li-cards','li-footer',true);
+    document.getElementById('liFreshBtn').style.display = 'flex';
   } catch(e) {
     document.getElementById('li-error').textContent='Something went wrong — try again.';
     document.getElementById('li-error').style.display='block';
@@ -1376,6 +1377,7 @@ window.addEventListener('DOMContentLoaded', () => {
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
   loadLinkedInCache();
   setLinkedInPhase(liResearchCache ? 'rewrite' : 'research');
+  if (liResearchCache) document.getElementById('liFreshBtn').style.display = 'flex';
 });
 </script>
 </div>
