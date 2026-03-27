@@ -83,24 +83,3 @@ export async function callAPIHaiku(system, msg) {
   return JSON.parse(text.slice(s, e + 1));
 }
 
-// Single-object call. No web search. Returns parsed JSON object.
-export async function callAPIObj(system, msg) {
-  const body = {
-    model: 'claude-sonnet-4-6',
-    max_tokens: 400,
-    system: system,
-    messages: [{ role: 'user', content: msg }],
-  };
-
-  const d = await claudeFetch(body);
-
-  const text = (d.content || [])
-    .filter(b => b.type === 'text')
-    .map(b => b.text)
-    .join('');
-
-  const s = text.indexOf('{');
-  const e = text.lastIndexOf('}');
-  if (s === -1 || e === -1) throw new Error('No JSON object in response');
-  return JSON.parse(text.slice(s, e + 1));
-}

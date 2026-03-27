@@ -261,15 +261,6 @@ Return JSON array of exactly 3 objects:
 - "angle": why this works for Matt's LinkedIn brand (1 sentence)
 Return ONLY raw JSON array.`;
 
-export const LINKEDIN_RESEARCH_SYSTEM = `You are a research assistant for a senior marketing exec. Search the web for today's most interesting stories across Tech & AI, Culture & Media, and Brand & Marketing. Find stories with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on.
-
-Return ONLY a raw JSON array of exactly 3 objects:
-- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
-- "headline": short story title (1 line)
-- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today
-
-No preamble. No commentary. Raw JSON array only.`;
-
 export const IMG_SYSTEM = `You generate bold, unexpected image prompts for social media posts.
 
 Given a social media post, generate a vivid, specific image generation prompt. Push creative boundaries. Think:
@@ -313,12 +304,6 @@ export const TOV_OPTIONS = [
   { key: 'raw',        label: 'Raw',        modifier: 'Say the uncomfortable thing. Zero hedging, zero diplomatic softening, zero qualifications. Shortest path from thought to page. Trust the reader completely. Don\'t explain yourself.', research: 'Find the stories that are uncomfortable, surprising, or that people are avoiding talking about directly.' },
 ];
 
-export const LENGTH_OPTIONS = [
-  { key: 'short',  label: 'Short',  modifier: 'HARD LIMIT: 1-4 sentences maximum. One tight paragraph or two very short ones. If it runs longer, cut it.' },
-  { key: 'medium', label: 'Medium', modifier: '' },
-  { key: 'long',   label: 'Long',   modifier: '8+ sentences. More narrative, more evidence, more room to breathe. Still no padding.' },
-];
-
 export const TOPIC_OPTIONS = [
   { key: 'tech',    label: 'Tech & AI',          value: 'Tech & AI' },
   { key: 'culture', label: 'Culture & Media',     value: 'Culture & Media' },
@@ -331,34 +316,20 @@ export function getTovModifier(activeKey) {
   return opt ? '\n\nTONE: ' + opt.modifier : '';
 }
 
-export function getLengthModifier(activeKey) {
-  if (!activeKey || activeKey === 'medium') return '';
-  const opt = LENGTH_OPTIONS.find(o => o.key === activeKey);
-  return (opt && opt.modifier) ? '\n\nLENGTH: ' + opt.modifier : '';
-}
-
 export function getTopicModifier(activeKey) {
   if (!activeKey) return '';
   const opt = TOPIC_OPTIONS.find(o => o.key === activeKey);
   return opt ? `\n\nCOUNT AND TOPIC OVERRIDE: Write exactly 1 post. Focus ONLY on ${opt.value} stories. Ignore other topics entirely. Set the topic field to "${opt.value}". Return JSON array of exactly 1 object.` : '';
 }
 
-export function buildSystemPrompt(base, { tov = null, length = null, topic = null } = {}) {
-  return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getLengthModifier(length) + getTopicModifier(topic);
+export function buildSystemPrompt(base, { tov = null, topic = null } = {}) {
+  return GUARDRAILS + '\n\n' + base + getTovModifier(tov) + getTopicModifier(topic);
 }
 
 export function getTovResearchGuidance(tov) {
   if (!tov) return '';
   const opt = TOV_OPTIONS.find(o => o.key === tov);
   return opt ? ' ' + opt.research : '';
-}
-
-export function buildResearchMsg(topic = null, tov = null) {
-  const base = 'Search the web for the most interesting stories from TODAY';
-  const guidance = getTovResearchGuidance(tov);
-  if (!topic) return base + ' across Tech & AI, Culture & Media, and Brand & Marketing.' + guidance;
-  const opt = TOPIC_OPTIONS.find(o => o.key === topic);
-  return base + `. Focus ONLY on ${opt ? opt.value : ''} stories. Ignore other topics entirely.` + guidance;
 }
 
 export function buildCategoryResearchSystem(category) {
