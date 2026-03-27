@@ -60,15 +60,17 @@ export async function callAPI(system, msg, search = true, maxTokens = 4000) {
   return JSON.parse(text.slice(s, e + 1));
 }
 
-// Single-object Haiku call. Web search enabled. Returns parsed JSON object.
-export async function callAPIHaiku(system, msg) {
+// Single-object Haiku call. Returns parsed JSON object.
+// search defaults true (web search enabled); pass false to disable.
+// maxTokens defaults 400.
+export async function callAPIHaiku(system, msg, search = true, maxTokens = 400) {
   const body = {
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 400,
+    max_tokens: maxTokens,
     system: system,
     messages: [{ role: 'user', content: msg }],
-    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
   };
+  if (search) body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
 
   const d = await claudeFetch(body);
 

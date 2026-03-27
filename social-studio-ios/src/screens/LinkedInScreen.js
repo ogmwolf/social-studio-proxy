@@ -50,7 +50,7 @@ export default function LinkedInScreen() {
       if (topics.length > 1) {
         setPhase('ranking');
         try {
-          const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics));
+          const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
           if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
             const reordered = rankResult.ranked
               .map(cat => topics.find(t => t.topic === cat))
