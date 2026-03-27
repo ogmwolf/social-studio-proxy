@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callAPI, callAPIHaiku } from '../api/anthropic';
-import { LINKEDIN_SYSTEM, TOPIC_OPTIONS, buildSystemPrompt, buildCategoryResearchSystem, buildCategoryResearchMsg, pickLinkedInEnding } from '../constants/prompts';
+import { LINKEDIN_SYSTEM, LINKEDIN_RANKING_SYSTEM, TOPIC_OPTIONS, buildSystemPrompt, buildCategoryResearchSystem, buildCategoryResearchMsg, buildRankingMsg, pickLinkedInEnding } from '../constants/prompts';
 import TovSelector from '../components/TovSelector';
 import TopicSelector from '../components/TopicSelector';
 import PostCard from '../components/PostCard';
@@ -24,7 +24,7 @@ export default function LinkedInScreen() {
   const [tov, setTov]         = useState(null);
   const [topic, setTopic]     = useState(null);
 
-  const ALL_CATS = ['Tech & AI', 'Culture & Media', 'Brand & Marketing'];
+  const ALL_CATS = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
 
   async function generate() {
     setPhase('researching');
@@ -43,9 +43,26 @@ export default function LinkedInScreen() {
             .catch(err => { console.warn(`[LinkedIn] Research failed for ${cat}:`, err.message); return null; })
         )
       );
-      const topics = settled.filter(Boolean);
+      let topics = settled.filter(Boolean);
       if (topics.length === 0) throw new Error('All research calls failed');
       console.log('[LinkedIn] Research complete:', topics.map(t => t.topic).join(', '));
+
+      if (topics.length > 1) {
+        setPhase('ranking');
+        try {
+          const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics));
+          if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
+            const reordered = rankResult.ranked
+              .map(cat => topics.find(t => t.topic === cat))
+              .filter(Boolean);
+            topics.forEach(t => { if (!reordered.includes(t)) reordered.push(t); });
+            topics = reordered;
+            console.log('[LinkedIn] Ranked order:', topics.map(t => t.topic).join(' → '));
+          }
+        } catch (e) {
+          console.warn('[LinkedIn] Ranking failed, using original order:', e.message);
+        }
+      }
 
       setPhase('drafting');
       const ending = pickLinkedInEnding();
@@ -95,7 +112,7 @@ export default function LinkedInScreen() {
             <View style={styles.buttonInner}>
               <ActivityIndicator color="#fff" size="small" />
               <Text style={styles.buttonText}>
-                {phase === 'researching' ? 'Researching...' : 'Drafting...'}
+                {phase === 'researching' ? 'Researching...' : phase === 'ranking' ? 'Ranking...' : 'Drafting...'}
               </Text>
             </View>
           ) : (
@@ -111,7 +128,7 @@ export default function LinkedInScreen() {
 
         {!!phase && (
           <Text style={styles.loadingHint}>
-            {phase === 'researching' ? "Finding today's stories..." : 'Writing your posts...'}
+            {phase === 'researching' ? "Finding today's stories..." : phase === 'ranking' ? "Ranking today's stories..." : 'Writing your posts...'}
           </Text>
         )}
 

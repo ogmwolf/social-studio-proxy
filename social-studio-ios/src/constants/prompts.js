@@ -308,6 +308,7 @@ export const TOPIC_OPTIONS = [
   { key: 'tech',    label: 'Tech & AI',          value: 'Tech & AI' },
   { key: 'culture', label: 'Culture & Media',     value: 'Culture & Media' },
   { key: 'brand',   label: 'Brand & Marketing',   value: 'Brand & Marketing' },
+  { key: 'gaming',  label: 'Gaming',              value: 'Gaming' },
 ];
 
 export function getTovModifier(activeKey) {
@@ -330,6 +331,16 @@ export function getTovResearchGuidance(tov) {
   if (!tov) return '';
   const opt = TOV_OPTIONS.find(o => o.key === tov);
   return opt ? ' ' + opt.research : '';
+}
+
+export const LINKEDIN_RANKING_SYSTEM = `You are a news editor. Rank these stories by newsworthiness — recency, real-world impact, and likely conversation volume today. Hottest story first.
+
+Return ONLY a raw JSON object: {"ranked": ["<topic1>", "<topic2>", ...]}
+Use the exact topic names provided. No preamble. No commentary. Raw JSON only.`;
+
+export function buildRankingMsg(topics) {
+  const lines = topics.map((t, i) => `${i + 1}. [${t.topic}] ${t.headline}\n${t.context}`);
+  return `Rank these stories by newsworthiness, hottest first:\n\n${lines.join('\n\n')}`;
 }
 
 export function buildCategoryResearchSystem(category) {

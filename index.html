@@ -600,6 +600,7 @@ const TOPIC_OPTIONS = [
   { key:'tech',    label:'Tech & AI',        value:'Tech & AI' },
   { key:'culture', label:'Culture & Media',   value:'Culture & Media' },
   { key:'brand',   label:'Brand & Marketing', value:'Brand & Marketing' },
+  { key:'gaming',  label:'Gaming',            value:'Gaming' },
 ];
 
 let activeTovReply = null;
@@ -703,6 +704,16 @@ async function researchCategory(category, tovKey) {
   const guidance = getTovResearchGuidance(tovKey);
   const msg = `Find today's most significant story in ${category}. Look beyond the obvious outlets — trade publications, earnings calls, regulatory filings, niche communities, international sources. Prioritize early signal over saturation.${guidance ? ' ' + guidance : ''}`;
   return callAPIHaiku(system, msg);
+}
+
+const LINKEDIN_RANKING_SYSTEM = `You are a news editor. Rank these stories by newsworthiness — recency, real-world impact, and likely conversation volume today. Hottest story first.
+
+Return ONLY a raw JSON object: {"ranked": ["<topic1>", "<topic2>", ...]}
+Use the exact topic names provided. No preamble. No commentary. Raw JSON only.`;
+
+function buildRankingMsg(topics) {
+  const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\n${t.context}`);
+  return `Rank these stories by newsworthiness, hottest first:\n\n${lines.join('\n\n')}`;
 }
 
 function busy(btnId, loadId, on, label, loadText) {
@@ -1156,7 +1167,7 @@ async function generateLinkedIn() {
   document.getElementById('li-cards').innerHTML='';
   document.getElementById('li-footer').style.display='none';
   try {
-    const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing'];
+    const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
     const cats = activeTopicLi
       ? [TOPIC_OPTIONS.find(o => o.key === activeTopicLi).value]
       : allCats;
@@ -1168,8 +1179,20 @@ async function generateLinkedIn() {
         .catch(() => researchCategory(cat, activeTovLi))
         .catch(() => null)
     ));
-    const topics = settled.filter(Boolean);
+    let topics = settled.filter(Boolean);
     if (topics.length === 0) throw new Error('All research calls failed');
+
+    if (topics.length > 1) {
+      busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Ranking today\'s stories...');
+      try {
+        const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics));
+        if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
+          const reordered = rankResult.ranked.map(cat => topics.find(t => t.topic === cat)).filter(Boolean);
+          topics.forEach(t => { if (!reordered.includes(t)) reordered.push(t); });
+          topics = reordered;
+        }
+      } catch(e) { /* fall through with original order */ }
+    }
 
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts','Writing your posts...');
     const ending = pickLinkedInEnding();
