@@ -1163,7 +1163,11 @@ async function generateLinkedIn() {
 
     busy('liBtn','li-loading',true,'<span>💼</span> Research & Draft Today\'s LinkedIn Posts',`Researching ${cats.join(', ')}...`);
 
-    const settled = await Promise.all(cats.map(cat => researchCategory(cat, activeTovLi).catch(() => null)));
+    const settled = await Promise.all(cats.map(cat =>
+      researchCategory(cat, activeTovLi)
+        .catch(() => researchCategory(cat, activeTovLi))
+        .catch(() => null)
+    ));
     const topics = settled.filter(Boolean);
     if (topics.length === 0) throw new Error('All research calls failed');
 

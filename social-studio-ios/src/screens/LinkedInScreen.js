@@ -39,6 +39,7 @@ export default function LinkedInScreen() {
       const settled = await Promise.all(
         cats.map(cat =>
           callAPIHaiku(buildCategoryResearchSystem(cat), buildCategoryResearchMsg(cat, tov))
+            .catch(() => callAPIHaiku(buildCategoryResearchSystem(cat), buildCategoryResearchMsg(cat, tov)))
             .catch(err => { console.warn(`[LinkedIn] Research failed for ${cat}:`, err.message); return null; })
         )
       );
