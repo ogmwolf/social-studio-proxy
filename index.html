@@ -53,8 +53,7 @@
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; animation: fadeUp 0.4s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .tags { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .tag { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tag-topic { background: var(--surface2); color: var(--muted); }
+  .tag { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
   .headline { font-size: 11px; color: #3a3a3a; font-style: normal; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
   .tweet-text { font-size: 15px; line-height: 1.75; color: #e0e0e0; margin-bottom: 14px; white-space: pre-wrap; }
   .angle { font-size: 11px; color: #333; border-top: 1px solid var(--border); padding-top: 12px; margin-bottom: 14px; line-height: 1.5; }
@@ -731,8 +730,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
     return `<div class="card" style="animation-delay:${i*.08}s">
       <div class="tags">
-        ${t.angle?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.angle}</span>`:''}
-        ${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}
+        ${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}
       </div>
       ${t.headline?`<div class="headline">↳ ${t.headline}</div>`:''}
       <div class="tweet-text" id="${key}-text-${i}">${content}</div>
@@ -762,7 +760,7 @@ function editCard(key, i, cId, fId, isLinkedIn=false, maxChars=280) {
   const content=isLinkedIn?(t.post||t.tweet):t.tweet;
   const topicColor=TOPIC_COLORS[t.topic]||'#1d9bf0';
   document.getElementById(`${key}-text-${i}`).closest('.card').innerHTML=`
-    <div class="tags">${t.angle?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.angle}</span>`:''} ${t.topic?`<span class="tag tag-topic">${t.topic}</span>`:''}</div>
+    <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}</div>
     <textarea class="edit-area" id="${key}-edit-${i}" oninput="updateCount('${key}',${i},${maxChars})" style="min-height:${isLinkedIn?'200px':'90px'}">${content}</textarea>
     <div class="edit-footer">
       <span class="char-count" id="${key}-count-${i}">${content.length}/${maxChars}</span>
