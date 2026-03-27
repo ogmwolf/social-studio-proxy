@@ -31,6 +31,11 @@
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .gen-btn.li-btn { background: var(--linkedin); }
+  .li-btn-row { display: flex; gap: 8px; }
+  .li-btn-row .gen-btn { flex: 1; width: auto; margin-bottom: 0; }
+  #liFreshBtn { flex: 1; padding: 15px 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 0; }
+  #liFreshBtn:hover { color: var(--text); border-color: #444; }
+  .li-btn-row { margin-bottom: 24px; }
   .gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; }
   .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #ffffff33; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -112,9 +117,10 @@
   .li-fresh-btn:hover { color: var(--text); border-color: #444; }
   .card-rewritten { border-left: 3px solid #f59e0b; }
   .rewritten-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
-  .btn-rewrite-card { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 12px; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .btn-rewrite-card { background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.5px; padding: 3px 10px; cursor: pointer; transition: color 0.2s, border-color 0.2s; flex-shrink: 0; }
   .btn-rewrite-card:hover { color: var(--text); border-color: #444; }
-  .rewrite-panel { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+  .rewrite-panel { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
   .rewrite-tov-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .btn-rewrite-go { align-self: flex-start; background: var(--linkedin); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 18px; cursor: pointer; }
   .btn-rewrite-go:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -216,12 +222,10 @@
 
   <!-- LINKEDIN -->
   <div class="panel" id="panel-linkedin">
-    <div class="li-badge">💼 LinkedIn Format</div>
-    <div id="li-rewrite-info" style="display:none">
-      <p class="li-rewrite-hint">Using today's stories. Pick a tone and rewrite anytime.</p>
-      <button class="li-fresh-btn" onclick="clearLinkedInCache()">↺ Fresh Stories</button>
+    <div class="li-btn-row">
+      <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
+      <button id="liFreshBtn" onclick="clearLinkedInCache()" style="display:none">↺ Fresh Stories</button>
     </div>
-    <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
     <div id="li-error" class="error-box" style="display:none"></div>
     <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
     <div id="li-cards" class="cards"></div>
@@ -744,16 +748,20 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
     const cardClass = isLinkedIn && t.rewritten ? 'card card-rewritten' : 'card';
     const rewrittenBadge = isLinkedIn && t.rewritten ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
-    const rewriteBtn = isLinkedIn ? `<button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>` : '';
     const rewritePanel = isLinkedIn ? `
       <div class="rewrite-panel" id="${key}-rewrite-panel-${i}" style="display:none">
         <div class="rewrite-tov-row" id="${key}-rewrite-tov-${i}"></div>
         <button class="btn-rewrite-go" onclick="rewriteCard('${key}',${i})">Rewrite</button>
       </div>` : '';
+    const cardHeader = isLinkedIn
+      ? `<div class="card-header">
+          <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}</div>
+          <button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>
+        </div>`
+      : `<div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}</div>`;
     return `<div class="${cardClass}" style="animation-delay:${i*.08}s">
-      <div class="tags">
-        ${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}
-      </div>
+      ${cardHeader}
+      ${rewritePanel}
       ${t.headline?`<div class="headline">↳ ${t.headline}</div>`:''}
       <div class="tweet-text" id="${key}-text-${i}">${content}</div>
       <div class="angle">${t.angle||t.why||''}</div>
@@ -761,10 +769,8 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
         <button class="${copyClass}" id="${key}-copy-${i}" onclick="copyCard('${key}',${i},${isLinkedIn})">Copy</button>
         <button class="btn-edit" onclick="editCard('${key}',${i},'${containerId}','${footerId}',${isLinkedIn},${maxChars})">Edit</button>
         <button class="btn-img" id="${key}-imgbtn-${i}" onclick="generateImgPrompt('${key}',${i})">🖼 Image Prompt</button>
-        ${rewriteBtn}
       </div>
       <div id="${key}-imgbox-${i}" style="display:none"></div>
-      ${rewritePanel}
     </div>`;
   }).join('');
   document.getElementById(footerId).style.display='block';
@@ -1203,18 +1209,16 @@ function clearLinkedInCache() {
   try { localStorage.removeItem('ss_li_research'); } catch(e) { /* ignore */ }
   document.getElementById('li-cards').innerHTML = '';
   document.getElementById('li-footer').style.display = 'none';
+  document.getElementById('liFreshBtn').style.display = 'none';
   setLinkedInPhase('research');
 }
 
 function setLinkedInPhase(phase) {
   // phase: 'research' | 'rewrite'
-  const rewriteInfo = document.getElementById('li-rewrite-info');
-  const btn         = document.getElementById('liBtn');
+  const btn = document.getElementById('liBtn');
   if (phase === 'rewrite') {
-    rewriteInfo.style.display = 'block';
     btn.innerHTML = '<span>✍️</span> Rewrite Posts';
   } else {
-    rewriteInfo.style.display = 'none';
     btn.innerHTML = '<span>🔍</span> Research & Draft LinkedIn Posts';
   }
 }
@@ -1334,6 +1338,7 @@ async function rewriteCard(key, i) {
       result[0].rewritten = true;
       data[key][i] = result[0];
       renderCards(data[key], key, 'li-cards', 'li-footer', true);
+      document.getElementById('liFreshBtn').style.display = 'flex';
     }
   } catch(e) {
     btn.textContent = 'Failed — try again';
