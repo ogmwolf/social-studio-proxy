@@ -31,12 +31,9 @@
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .gen-btn.li-btn { background: var(--linkedin); }
-  .li-btn-row { display: flex; gap: 8px; }
-  .li-btn-row .gen-btn { flex: 1; width: auto; margin-bottom: 0; }
-  #liFreshBtn { flex: 1; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-bottom: 0; justify-content: center; align-items: center; }
-  #liFreshBtn:hover:not(:disabled) { opacity: 0.9; }
-  #liFreshBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .li-btn-row { margin-bottom: 24px; }
+  #liFreshBtn { width: 100%; padding: 15px 20px; background: var(--linkedin); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
+  #liFreshBtn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  #liFreshBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .gen-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; }
   .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid #ffffff33; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -119,8 +116,8 @@
   .card-rewritten { border-left: 3px solid #f59e0b; }
   .rewritten-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
   .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .btn-rewrite-card { background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.5px; padding: 3px 10px; cursor: pointer; transition: color 0.2s, border-color 0.2s; flex-shrink: 0; }
-  .btn-rewrite-card:hover { color: var(--text); border-color: #444; }
+  .btn-rewrite-card { background: var(--linkedin); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: opacity 0.2s; flex-shrink: 0; }
+  .btn-rewrite-card:hover { opacity: 0.85; }
   .rewrite-panel { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
   .rewrite-tov-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .btn-rewrite-go { align-self: flex-start; background: var(--linkedin); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 18px; cursor: pointer; }
@@ -223,10 +220,8 @@
 
   <!-- LINKEDIN -->
   <div class="panel" id="panel-linkedin">
-    <div class="li-btn-row">
-      <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
-      <button id="liFreshBtn" onclick="clearLinkedInCache()" style="display:none">↺ Fresh Stories</button>
-    </div>
+    <button class="gen-btn li-btn" id="liBtn" onclick="generateLinkedIn()"><span>🔍</span> Research & Draft LinkedIn Posts</button>
+    <button id="liFreshBtn" onclick="clearLinkedInCache()" style="display:none">↺ Fresh Stories</button>
     <div id="li-error" class="error-box" style="display:none"></div>
     <div id="li-loading" class="loading-hint" style="display:none">Researching & drafting for LinkedIn...</div>
     <div id="li-cards" class="cards"></div>
@@ -1214,13 +1209,9 @@ function clearLinkedInCache() {
 }
 
 function setLinkedInPhase(phase) {
-  // phase: 'research' | 'rewrite'
-  const btn = document.getElementById('liBtn');
-  if (phase === 'rewrite') {
-    btn.innerHTML = '<span>✍️</span> Rewrite Posts';
-  } else {
-    btn.innerHTML = '<span>🔍</span> Research & Draft LinkedIn Posts';
-  }
+  // phase kept for cache-load call on DOMContentLoaded; liBtn label is always research
+  const freshBtn = document.getElementById('liFreshBtn');
+  freshBtn.style.display = phase === 'rewrite' ? 'flex' : 'none';
 }
 
 // ── LINKEDIN ──
@@ -1246,7 +1237,7 @@ async function generateLinkedIn() {
 
     if (cacheHit) {
       topics = liResearchCache.topics;
-      busy('liBtn','li-loading',true,'<span>✍️</span> Rewrite Posts','Writing your posts...');
+      busy('liBtn','li-loading',true,'<span>🔍</span> Research & Draft LinkedIn Posts','Writing your posts...');
     } else {
       const allCats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
       const cats = activeTopicLi
@@ -1276,7 +1267,6 @@ async function generateLinkedIn() {
       }
 
       saveLinkedInCache(topics);
-      setLinkedInPhase('rewrite');
       busy('liBtn','li-loading',true,'<span>🔍</span> Research & Draft LinkedIn Posts','Writing your posts...');
     }
 
@@ -1290,8 +1280,7 @@ async function generateLinkedIn() {
     document.getElementById('li-error').textContent='Something went wrong — try again.';
     document.getElementById('li-error').style.display='block';
   } finally {
-    const inRewrite = liResearchCache && liResearchCache.date === getLiDateKey();
-    busy('liBtn','li-loading',false, inRewrite ? '<span>✍️</span> Rewrite Posts' : '<span>🔍</span> Research & Draft LinkedIn Posts', '');
+    busy('liBtn','li-loading',false,'<span>🔍</span> Research & Draft LinkedIn Posts','');
     document.getElementById('liFreshBtn').disabled = false;
   }
 }
