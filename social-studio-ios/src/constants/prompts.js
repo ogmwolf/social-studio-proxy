@@ -250,9 +250,11 @@ RIGHT ending (stops after the observation):
 
 The pattern to eliminate: after making a sharp observation, Claude adds a sentence that explains what the observation means or what's missing. That sentence is always the one to cut.
 
-- 2-3 hashtags at end
+- No hashtags.
 - No dashes of any kind. No em dashes, no en dashes, no hyphens as connectors. Commas or periods only. This is critical.
 - Never use italic, bold, or any markdown formatting. Plain text only.
+- Never repeat a hashtag within the same post.
+- Never use the phrase "What is interesting" or "What's interesting" — it's a verbal tic. Cut it entirely. Restructure the sentence without it.
 
 Return JSON array of exactly 3 objects:
 - "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
