@@ -501,7 +501,7 @@ Return JSON array of exactly 5 objects:
 - "tweet": 1-2 sentence summary of what's being debated (written like a tweet)
 - "why": one sentence on why this is good reply opportunity for Matt
 - "engagement": "Trending today"|"Hot debate"|"Gaining traction"
-Return ONLY raw JSON array.`;
+Return ONLY a raw JSON array. No preamble. No markdown.`;
 
 const REPLY_SYSTEM = VOICE + `
 
@@ -705,9 +705,11 @@ async function callAPIHaiku(system, msg, search=true, maxTokens=400) {
   const res = await fetch('/proxy/anthropic', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
   const d = await res.json();
   const text = (d.content||[]).map(b=>b.type==='text'?b.text:'').join('\n');
-  const s=text.indexOf('{'), e=text.lastIndexOf('}');
-  if (s===-1||e===-1) throw new Error('No JSON found');
-  return JSON.parse(text.slice(s,e+1));
+  const arrS=text.indexOf('['), arrE=text.lastIndexOf(']');
+  if (arrS!==-1&&arrE!==-1) return JSON.parse(text.slice(arrS,arrE+1));
+  const objS=text.indexOf('{'), objE=text.lastIndexOf('}');
+  if (objS!==-1&&objE!==-1) return JSON.parse(text.slice(objS,objE+1));
+  throw new Error('No JSON found');
 }
 
 async function researchCategory(category, tovKey) {
@@ -1162,7 +1164,7 @@ async function findTrending() {
     // Fallback to web search if X API fails
     console.warn('X API failed, falling back to web search:', e);
     try {
-      trending = await callAPI(TRENDING_SYSTEM,'Find the 5 hottest conversations happening right now across Tech & AI, Culture & Media, Brand & Marketing, and Gaming.', true, 1000);
+      trending = await callAPIHaiku(TRENDING_SYSTEM,'Find the 5 hottest conversations happening right now across Tech & AI, Culture & Media, Brand & Marketing, and Gaming.', true, 500);
       const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
       document.getElementById('trending-list').innerHTML = trending.map((t,i)=>{
         const c=topicColors2[t.topic]||'#555';
