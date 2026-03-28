@@ -1162,7 +1162,7 @@ async function findTrending() {
     // Fallback to web search if X API fails
     console.warn('X API failed, falling back to web search:', e);
     try {
-      trending = await callAPI(TRENDING_SYSTEM,'Search the web RIGHT NOW for the hottest conversations and debates in Tech & AI, Culture & Media, and Brand & Marketing. What are people arguing about, reacting to, or talking about today?');
+      trending = await callAPI(TRENDING_SYSTEM,'Find the 5 hottest conversations happening right now across Tech & AI, Culture & Media, Brand & Marketing, and Gaming.', true, 1000);
       const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
       document.getElementById('trending-list').innerHTML = trending.map((t,i)=>{
         const c=topicColors2[t.topic]||'#555';
