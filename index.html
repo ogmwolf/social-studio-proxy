@@ -147,9 +147,13 @@
 
   <!-- TWEETS -->
   <div class="panel active" id="panel-original">
-    <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>⚡</span> Research & Draft Today's Tweets</button>
+    <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>🔍</span> Research & Draft Tweets</button>
+    <div id="orig-rewrite-info" style="display:none">
+      <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
+      <button class="li-fresh-btn" onclick="clearTweetCache()">↺ Fresh Stories</button>
+    </div>
     <div id="orig-error" class="error-box" style="display:none"></div>
-    <div id="orig-loading" class="loading-hint" style="display:none">Searching the web & drafting in your voice...</div>
+    <div id="orig-loading" class="loading-hint" style="display:none">Researching...</div>
     <div id="orig-cards" class="cards"></div>
     <div id="orig-footer" class="footer-note" style="display:none">Copy → paste into Twitter/X → post when ready</div>
   </div>
@@ -589,6 +593,7 @@ const TOPIC_COLORS = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Bran
 let data = { orig:[], reply:[], paste:[], li:[] };
 let trending = [], selected = null;
 let liResearchCache = null;
+let tweetResearchCache = null;
 
 // ── CONTENT BRIEF STATE ──
 const GUARDRAILS = `NON-NEGOTIABLES: Never end the same way twice. No signature moves. Never conclude with a lesson, takeaway, or summary of what you just said. Never use rhetorical questions that are really just statements in disguise. Never use parallel two-line aphorisms as a closer. Never sound like you're teaching — you're observing. Vary structure every time. A post that ends before it fully resolves is often stronger than one that ties everything up. No fortune cookie energy. Ever. No dashes of any kind — no em dashes, no en dashes, no hyphens used as connectors. Use commas or periods instead. This applies everywhere, without exception.`;
@@ -849,26 +854,115 @@ function copyPrompt(key, i, btn) {
   setTimeout(()=>{ btn.textContent='Copy Prompt'; },2000);
 }
 
+// ── TWEET CACHE ──
+function loadTweetCache() {
+  try {
+    const raw = localStorage.getItem('ss_tweet_research');
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed.date === getLiDateKey()
+        && Array.isArray(parsed.topics)
+        && parsed.topics.length > 0
+        && parsed.topics.every(t => t.topic && t.headline && t.context)) {
+      tweetResearchCache = parsed;
+    } else {
+      localStorage.removeItem('ss_tweet_research');
+    }
+  } catch(e) { /* treat as miss */ }
+}
+
+function saveTweetCache(topics) {
+  const entry = { date: getLiDateKey(), topics };
+  tweetResearchCache = entry;
+  try { localStorage.setItem('ss_tweet_research', JSON.stringify(entry)); } catch(e) {}
+}
+
+function clearTweetCache() {
+  tweetResearchCache = null;
+  try { localStorage.removeItem('ss_tweet_research'); } catch(e) {}
+  document.getElementById('orig-cards').innerHTML = '';
+  document.getElementById('orig-footer').style.display = 'none';
+  setTweetPhase('research');
+  generateOriginal();
+}
+
+function setTweetPhase(phase) {
+  const btn  = document.getElementById('genBtn');
+  const info = document.getElementById('orig-rewrite-info');
+  if (phase === 'rewrite') {
+    btn.innerHTML = '<span>✍️</span> Rewrite Tweets';
+    info.style.display = 'block';
+  } else {
+    btn.innerHTML = '<span>🔍</span> Research & Draft Tweets';
+    info.style.display = 'none';
+  }
+}
+
+function buildTweetGenerationPrompt(topics) {
+  const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
+  return `Here are today's trending stories:\n\n${lines.join('\n\n')}\n\nWrite 5 tweets across these stories in my voice. Cover all four categories — at least 1 tweet per category. Assign the 5th tweet to whichever story is strongest. First line of each tweet must land something real.`;
+}
+
 // ── ORIGINAL TWEETS ──
 async function generateOriginal() {
-  busy('genBtn','orig-loading',true,'<span>⚡</span> Research & Draft Today\'s Tweets','Researching & drafting...');
   document.getElementById('orig-error').style.display='none';
   document.getElementById('orig-cards').innerHTML='';
   document.getElementById('orig-footer').style.display='none';
+
+  const cacheHit = tweetResearchCache
+    && tweetResearchCache.date === getLiDateKey()
+    && Array.isArray(tweetResearchCache.topics)
+    && tweetResearchCache.topics.length > 0
+    && tweetResearchCache.topics.every(t => t.topic && t.headline && t.context);
+
   try {
     const templates = pickTemplates();
     console.log('[Tweets] Templates selected:', templates.map(t => `${t.id}(${t.type})`).join(', '));
     console.log('[Tweets] Constraints:', templates.map((t,i) => `Tweet ${i+1}: ${t.constraint}`).join(' | '));
     const system = buildSystemPrompt(buildOrigSystem(templates), null, null);
     console.log('[Tweets] Task block:\n', system.slice(system.indexOf('TASK:')));
-    const msg = 'Search broadly for today\'s most significant stories across Tech & AI, Culture & Media, Brand & Marketing, and Gaming. Lead with the biggest, most important story of the day regardless of category — then fill the remaining slots with the strongest stories across all four categories, ensuring at least 1 tweet per category. Go beyond the obvious — look at trade publications, earnings calls, regulatory filings, niche industry blogs, academic research, international sources, and professional communities. Prioritize early signal over saturation. Find what smart people will be talking about tomorrow, not what everyone is already covering today.';
-    data.orig = await callAPI(system, msg);
+
+    let topics;
+    if (cacheHit) {
+      topics = tweetResearchCache.topics;
+      busy('genBtn','orig-loading',true,'<span>✍️</span> Rewrite Tweets','Writing your tweets...');
+    } else {
+      const cats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
+      busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets',`Researching ${cats.join(', ')}...`);
+
+      const settled = await Promise.all(cats.map(cat =>
+        researchCategory(cat, null)
+          .catch(() => researchCategory(cat, null))
+          .catch(() => null)
+      ));
+      topics = settled.filter(Boolean);
+      if (topics.length === 0) throw new Error('All research calls failed');
+
+      if (topics.length > 1) {
+        busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets','Ranking today\'s stories...');
+        try {
+          const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
+          if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
+            const reordered = rankResult.ranked.map(cat => topics.find(t => t.topic === cat)).filter(Boolean);
+            topics.forEach(t => { if (!reordered.includes(t)) reordered.push(t); });
+            topics = reordered;
+          }
+        } catch(e) { /* fall through with original order */ }
+      }
+
+      saveTweetCache(topics);
+      busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets','Writing your tweets...');
+    }
+
+    data.orig = await callAPI(system, buildTweetGenerationPrompt(topics), false);
     renderCards(data.orig,'orig','orig-cards','orig-footer');
+    setTweetPhase('rewrite');
   } catch(e) {
     document.getElementById('orig-error').textContent='Something went wrong — try again.';
     document.getElementById('orig-error').style.display='block';
   } finally {
-    busy('genBtn','orig-loading',false,'<span>⚡</span> Research & Draft Today\'s Tweets','');
+    const inRewrite = tweetResearchCache && tweetResearchCache.date === getLiDateKey();
+    busy('genBtn','orig-loading',false, inRewrite ? '<span>✍️</span> Rewrite Tweets' : '<span>🔍</span> Research & Draft Tweets', '');
   }
 }
 
@@ -1354,6 +1448,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   buildSelectorRow('tov-reply-row',  TOV_OPTIONS,   activeTovReply,  'toggleTovReply');
   buildSelectorRow('tov-paste-row',  TOV_OPTIONS,   activeTovPaste,  'toggleTovPaste');
+  loadTweetCache();
+  setTweetPhase(tweetResearchCache ? 'rewrite' : 'research');
   loadLinkedInCache();
   setLinkedInPhase(liResearchCache ? 'rewrite' : 'research');
 });
