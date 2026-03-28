@@ -110,6 +110,8 @@
   .li-rewrite-hint { font-family: 'DM Mono', monospace; font-size: 10px; color: #444; letter-spacing: 0.5px; margin: 0 0 10px; }
   .li-fresh-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; margin-bottom: 16px; transition: color 0.2s, border-color 0.2s; }
   .li-fresh-btn:hover { color: var(--text); border-color: #444; }
+  .tweet-fresh-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; margin-bottom: 16px; transition: color 0.2s, border-color 0.2s; }
+  .tweet-fresh-btn:hover { color: var(--text); border-color: #444; }
   .card-rewritten { border-left: 3px solid #f59e0b; }
   .rewritten-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
   .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -150,7 +152,7 @@
     <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>🔍</span> Research & Draft Tweets</button>
     <div id="orig-rewrite-info" style="display:none">
       <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
-      <button class="li-fresh-btn" onclick="clearTweetCache()">↺ Fresh Stories</button>
+      <button class="tweet-fresh-btn" onclick="clearTweetCache()">↺ Fresh Stories</button>
     </div>
     <div id="orig-error" class="error-box" style="display:none"></div>
     <div id="orig-loading" class="loading-hint" style="display:none">Researching...</div>
