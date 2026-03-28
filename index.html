@@ -744,15 +744,16 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       .replace(/\*\*(.*?)\*\*/g,'$1')
       .replace(/\*(.*?)\*/g,'$1')
       .replace(/_(.*?)_/g,'$1');
+    const showRewrite = isLinkedIn || key === 'orig';
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
-    const cardClass = isLinkedIn && t.rewritten ? 'card card-rewritten' : 'card';
-    const rewrittenBadge = isLinkedIn && t.rewritten ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
-    const rewritePanel = isLinkedIn ? `
+    const cardClass = showRewrite && t.rewritten ? 'card card-rewritten' : 'card';
+    const rewrittenBadge = showRewrite && t.rewritten ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
+    const rewritePanel = showRewrite ? `
       <div class="rewrite-panel" id="${key}-rewrite-panel-${i}" style="display:none">
         <div class="rewrite-tov-row" id="${key}-rewrite-tov-${i}"></div>
         <button class="btn-rewrite-go" onclick="rewriteCard('${key}',${i})">Go</button>
       </div>` : '';
-    const cardHeader = isLinkedIn
+    const cardHeader = showRewrite
       ? `<div class="card-header">
           <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}</div>
           <button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>
@@ -1396,11 +1397,14 @@ function selectCardTov(key, i, tovKey) {
 }
 
 async function rewriteCard(key, i) {
-  if (!liResearchCache) return;
+  const isLi = key === 'li';
+  const cache = isLi ? liResearchCache : tweetResearchCache;
+  if (!cache) return;
+
   const panel = document.getElementById(`${key}-rewrite-panel-${i}`);
   const tovKey = panel.dataset.tov || null;
   const card = data[key][i];
-  const research = liResearchCache.topics.find(t => t.topic === card.topic);
+  const research = cache.topics.find(t => t.topic === card.topic);
   if (!research) return;
 
   const btn = panel.querySelector('.btn-rewrite-go');
@@ -1408,13 +1412,23 @@ async function rewriteCard(key, i) {
   btn.textContent = 'Going...';
 
   try {
-    const system = buildSystemPrompt(LINKEDIN_SYSTEM, tovKey, null);
-    const msg = `Here is today's story for LinkedIn:\n\n[${research.topic}] ${research.headline}\nContext: ${research.context}\n\nWrite 1 LinkedIn post in my voice. First line must hook. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
-    const result = await callAPI(system, msg, false);
+    let result;
+    if (isLi) {
+      const system = buildSystemPrompt(LINKEDIN_SYSTEM, tovKey, null);
+      const msg = `Here is today's story for LinkedIn:\n\n[${research.topic}] ${research.headline}\nContext: ${research.context}\n\nWrite 1 LinkedIn post in my voice. First line must hook. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
+      result = await callAPI(system, msg, false);
+    } else {
+      const templates = pickTemplates().slice(0, 1);
+      const system = buildSystemPrompt(buildOrigSystem(templates), tovKey, null);
+      const msg = `Here is today's story:\n\n[${research.topic}] ${research.headline}\nContext: ${research.context}\n\nWrite 1 tweet in my voice based on this story. Return JSON array of exactly 1 object with fields: topic, headline, tweet, why.`;
+      result = await callAPI(system, msg, false);
+    }
     if (result && result[0]) {
       result[0].rewritten = true;
       data[key][i] = result[0];
-      renderCards(data[key], key, 'li-cards', 'li-footer', true);
+      const containerId = isLi ? 'li-cards' : 'orig-cards';
+      const footerId   = isLi ? 'li-footer' : 'orig-footer';
+      renderCards(data[key], key, containerId, footerId, isLi);
     }
   } catch(e) {
     btn.textContent = 'Failed — try again';
