@@ -135,6 +135,9 @@
   .zone-divider::before, .zone-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .zone-divider span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
   .coming-soon { text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; padding: 60px 20px; letter-spacing: 1px; }
+  .tab-labels { display: flex; gap: 8px; margin-bottom: 24px; margin-top: 6px; }
+  .tab-labels span { flex: 1; text-align: center; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .tab-labels span.active { color: var(--text); }
   .gen-btn-secondary { width: 100%; padding: 13px 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .gen-btn-secondary:hover:not(:disabled) { border-color: #444; color: var(--text); }
   .gen-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -183,12 +186,20 @@
     </button>
   </div>
 
+  <div class="tab-labels">
+    <span class="active">X</span>
+    <span>LinkedIn</span>
+    <span>Threads</span>
+    <span>Instagram</span>
+    <span>TikTok</span>
+  </div>
+
   <!-- X PLATFORM -->
   <div class="panel active" id="panel-x">
 
     <!-- ZONE 1: CREATE -->
     <div id="panel-original">
-      <div class="zone-divider" style="margin-top:20px"><span>✦ Create</span></div>
+      <div class="zone-divider" style="margin-top:32px"><span>✦ Create</span></div>
       <button class="gen-btn" id="genBtn" onclick="generateOriginal()">Research & Draft Tweets</button>
       <div id="orig-rewrite-info" style="display:none">
         <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
@@ -716,6 +727,10 @@ function switchPlatform(platform, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const panelId = platform === 'x' ? 'panel-x' : 'panel-' + platform;
   document.getElementById(panelId).classList.add('active');
+  const platforms = ['x', 'linkedin', 'threads', 'instagram', 'tiktok'];
+  document.querySelectorAll('.tab-labels span').forEach((s, idx) => {
+    s.classList.toggle('active', platforms[idx] === platform);
+  });
 }
 
 async function callAPI(system, msg, search=true, maxTokens=4000) {
