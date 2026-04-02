@@ -135,6 +135,9 @@
   .zone-divider::before, .zone-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .zone-divider span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
   .coming-soon { text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; padding: 60px 20px; letter-spacing: 1px; }
+  .gen-btn-secondary { width: 100%; padding: 13px 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .gen-btn-secondary:hover:not(:disabled) { border-color: #444; color: var(--text); }
+  .gen-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -185,7 +188,7 @@
 
     <!-- ZONE 1: CREATE -->
     <div id="panel-original">
-      <div class="zone-divider" style="margin-top:0"><span>✦ Create</span></div>
+      <div class="zone-divider" style="margin-top:20px"><span>✦ Create</span></div>
       <button class="gen-btn" id="genBtn" onclick="generateOriginal()">Research & Draft Tweets</button>
       <div id="orig-rewrite-info" style="display:none">
         <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
@@ -205,11 +208,8 @@
 
       <!-- WATCH LIST -->
       <div id="rs-watch">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <p class="section-label" style="margin:0">Last 12 hours from your watch list</p>
-          <span style="font-family:'DM Mono',monospace;font-size:9px;color:#333">~$0.25 max</span>
-        </div>
-        <button class="gen-btn" id="watchBtn" onclick="loadWatchList()"><span>👥</span> Fetch Watch List Tweets</button>
+        <p style="font-family:'DM Mono',monospace;font-size:10px;color:#333;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px">Last 12 hours</p>
+        <button class="gen-btn-secondary" id="watchBtn" onclick="loadWatchList()">Fetch Watch List Tweets</button>
         <div id="watch-error" class="error-box" style="display:none"></div>
         <div id="watch-loading" class="loading-hint" style="display:none">Fetching tweets from your watch list...</div>
         <div id="watch-list" class="trending-list"></div>
@@ -221,7 +221,7 @@
       <!-- TRENDING -->
       <div id="rs-trend">
         <p class="section-label">Hot conversations in your world right now</p>
-        <button class="gen-btn" id="trendBtn" onclick="findTrending()"><span>🔥</span> Find Trending Tweets</button>
+        <button class="gen-btn-secondary" id="trendBtn" onclick="findTrending()">Find Trending Tweets</button>
         <div id="trend-error" class="error-box" style="display:none"></div>
         <div id="trend-loading" class="loading-hint" style="display:none">Searching X for trending conversations...</div>
         <div id="trending-list" class="trending-list"></div>
@@ -243,18 +243,19 @@
         <button class="back-btn" onclick="resetReply()">← Back to tweets</button>
       </div>
 
-      <div class="zone-divider"><span>↩ Reply Guy</span></div>
-      <label class="input-label">Paste tweet text here</label>
-      <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
-      <div class="selector-block">
-        <span class="selector-label">Tone of Voice</span>
-        <div class="selector-row" id="tov-paste-row"></div>
+      <div id="reply-guy-section" style="display:none">
+        <div class="zone-divider"><span>↩ Reply Guy</span></div>
+        <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
+        <div class="selector-block">
+          <span class="selector-label">Tone of Voice</span>
+          <div class="selector-row" id="tov-paste-row"></div>
+        </div>
+        <button class="gen-btn" id="pasteBtn" onclick="generatePastedReply()"><span>↩</span> Draft Reply to This Tweet</button>
+        <div id="paste-error" class="error-box" style="display:none"></div>
+        <div id="paste-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
+        <div id="paste-cards" class="cards"></div>
+        <div id="paste-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
       </div>
-      <button class="gen-btn" id="pasteBtn" onclick="generatePastedReply()"><span>↩</span> Draft Reply to This Tweet</button>
-      <div id="paste-error" class="error-box" style="display:none"></div>
-      <div id="paste-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
-      <div id="paste-cards" class="cards"></div>
-      <div id="paste-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
     </div>
 
   </div>
@@ -1029,7 +1030,7 @@ async function generateOriginal() {
 
 // ── WATCH LIST ──
 async function loadWatchList() {
-  busy('watchBtn','watch-loading',true,'<span>👥</span> Fetch Watch List Tweets','Fetching tweets from your watch list...');
+  busy('watchBtn','watch-loading',true,'Fetch Watch List Tweets','Fetching tweets from your watch list...');
   document.getElementById('watch-error').style.display='none';
   document.getElementById('watch-list').innerHTML='';
   document.getElementById('step-reply').style.display='none';
@@ -1109,7 +1110,7 @@ async function loadWatchList() {
   if (allTweets.length === 0) {
     document.getElementById('watch-error').textContent = 'No tweets found in the last 12 hours. Your watch list may not have posted recently, or there was an API error. Check the browser console for details.';
     document.getElementById('watch-error').style.display='block';
-    busy('watchBtn','watch-loading',false,'<span>👥</span> Fetch Watch List Tweets','');
+    busy('watchBtn','watch-loading',false,'Fetch Watch List Tweets','');
     return;
   }
 
@@ -1139,7 +1140,7 @@ async function loadWatchList() {
     </div>`;
   }).join('');
 
-  busy('watchBtn','watch-loading',false,'<span>👥</span> Fetch Watch List Tweets','');
+  busy('watchBtn','watch-loading',false,'Fetch Watch List Tweets','');
 }
 
 function getTimeAgo(iso) {
@@ -1157,7 +1158,7 @@ const TRENDING_QUERIES = [
 ];
 
 async function findTrending() {
-  busy('trendBtn','trend-loading',true,'<span>🔍</span> Find Trending Tweets to Reply To','Fetching real tweets from X...');
+  busy('trendBtn','trend-loading',true,'Find Trending Tweets','Fetching real tweets from X...');
   document.getElementById('trend-error').style.display='none';
   document.getElementById('trending-list').innerHTML='';
   try {
@@ -1236,7 +1237,7 @@ async function findTrending() {
       document.getElementById('trend-error').style.display='block';
     }
   } finally {
-    busy('trendBtn','trend-loading',false,'<span>🔍</span> Find Trending Tweets to Reply To','');
+    busy('trendBtn','trend-loading',false,'Find Trending Tweets','');
   }
 }
 
@@ -1249,6 +1250,11 @@ function selectTrending(i) {
   document.getElementById('reply-cards').innerHTML='';
   document.getElementById('reply-footer').style.display='none';
   document.getElementById('step-reply').scrollIntoView({behavior:'smooth',block:'start'});
+  // Show Reply Guy and auto-populate with selected tweet
+  document.getElementById('pastedTweet').value = selected.tweet || '';
+  document.getElementById('reply-guy-section').style.display='block';
+  document.getElementById('paste-cards').innerHTML='';
+  document.getElementById('paste-footer').style.display='none';
 }
 
 async function rewriteInMyVoice(i) {
