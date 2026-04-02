@@ -121,6 +121,11 @@
   .rewrite-tov-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
   .btn-rewrite-go { margin-top: 4px; background: var(--linkedin); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 18px; cursor: pointer; }
   .btn-rewrite-go:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-fresh-story { padding: 10px 14px; font-size: 12px; background: #1a1200; color: #f59e0b; border: 1px solid #f59e0b33; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+  .btn-fresh-story:hover:not(:disabled) { background: #261a00; border-color: #f59e0b88; }
+  .btn-fresh-story:disabled { opacity: 0.4; cursor: not-allowed; }
+  .card-fresh { border-left: 3px solid #f59e0b; }
+  .fresh-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -748,8 +753,9 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       .replace(/_(.*?)_/g,'$1');
     const showRewrite = isLinkedIn || key === 'orig';
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
-    const cardClass = showRewrite && t.rewritten ? 'card card-rewritten' : 'card';
-    const rewrittenBadge = showRewrite && t.rewritten ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
+    const cardClass = showRewrite && (t.rewritten || t.freshStory) ? (t.freshStory ? 'card card-fresh' : 'card card-rewritten') : 'card';
+    const rewrittenBadge = showRewrite && t.rewritten && !t.freshStory ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
+    const freshBadge = showRewrite && t.freshStory ? `<span class="fresh-badge">⟳ Fresh Story</span>` : '';
     const rewritePanel = showRewrite ? `
       <div class="rewrite-panel" id="${key}-rewrite-panel-${i}" style="display:none">
         <div class="rewrite-tov-row" id="${key}-rewrite-tov-${i}"></div>
@@ -757,7 +763,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       </div>` : '';
     const cardHeader = showRewrite
       ? `<div class="card-header">
-          <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}</div>
+          <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}${freshBadge}</div>
           <button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>
         </div>`
       : `<div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}</div>`;
@@ -771,6 +777,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
         <button class="${copyClass}" id="${key}-copy-${i}" onclick="copyCard('${key}',${i},${isLinkedIn})">Copy</button>
         <button class="btn-edit" onclick="editCard('${key}',${i},'${containerId}','${footerId}',${isLinkedIn},${maxChars})">Edit</button>
         <button class="btn-img" id="${key}-imgbtn-${i}" onclick="generateImgPrompt('${key}',${i})">🖼 Image Prompt</button>
+        ${isLinkedIn && liResearchCache ? `<button class="btn-fresh-story" id="${key}-fresh-${i}" onclick="freshStory('${key}',${i})">⟳ Fresh Story</button>` : ''}
       </div>
       <div id="${key}-imgbox-${i}" style="display:none"></div>
     </div>`;
@@ -1435,6 +1442,53 @@ async function rewriteCard(key, i) {
   } catch(e) {
     btn.textContent = 'Failed — try again';
     btn.disabled = false;
+  }
+}
+
+async function freshStory(key, i) {
+  if (!liResearchCache) return;
+  const card = data[key][i];
+  const topic = card.topic;
+  const avoidHeadline = card.headline || '';
+
+  const btn = document.getElementById(`${key}-fresh-${i}`);
+  btn.disabled = true;
+  btn.textContent = '⟳ Searching...';
+
+  try {
+    const system = `You are a research assistant for a senior marketing exec. Search the web for today's most significant story in the ${topic} space — but NOT the following story, find something different: "${avoidHeadline}". Find something with real data, industry tension, or emerging shifts. Use a maximum of 2 web searches. Return ONLY a raw JSON object: { "topic": "${topic}", "headline": "...", "context": "2-3 sentences" }. No preamble. No commentary. Raw JSON only.`;
+    const msg = `Find a different story in ${topic} today. Avoid: "${avoidHeadline}". Look beyond the obvious outlets.`;
+    const freshResearch = await callAPIHaiku(system, msg, true, 400);
+
+    if (!freshResearch || !freshResearch.headline) throw new Error('No story found');
+
+    liResearchCache.topics = liResearchCache.topics.map(t =>
+      t.topic === topic ? freshResearch : t
+    );
+    try { localStorage.setItem('ss_li_research', JSON.stringify(liResearchCache)); } catch(e) {}
+
+    data[key][i] = {
+      ...data[key][i],
+      headline: freshResearch.headline,
+      post: null,
+      freshStory: true,
+      rewritten: false
+    };
+
+    const panel = document.getElementById(`${key}-rewrite-panel-${i}`);
+    const tovKey = panel ? (panel.dataset.tov || null) : null;
+    const system2 = buildSystemPrompt(LINKEDIN_SYSTEM, tovKey, null);
+    const msg2 = `Here is today's story for LinkedIn:\n\n[${freshResearch.topic}] ${freshResearch.headline}\nContext: ${freshResearch.context}\n\nWrite 1 LinkedIn post in my voice. First line must hook. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
+    const result = await callAPI(system2, msg2, false);
+    if (result && result[0]) {
+      result[0].rewritten = false;
+      result[0].freshStory = true;
+      data[key][i] = result[0];
+      renderCards(data[key], key, 'li-cards', 'li-footer', true);
+    }
+  } catch(e) {
+    btn.textContent = '⟳ Failed';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '⟳ Fresh Story'; }, 2000);
   }
 }
 
