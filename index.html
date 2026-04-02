@@ -1274,7 +1274,9 @@ function selectTrending(i) {
         `<button class="sel-pill" data-tov-key="${o.key}" onclick="selectInlineReplyTov(${i},'${o.key}')">${o.label}</button>`
       ).join('');
     }
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => {
+      document.getElementById('reply-panel-' + i)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
   }
 }
 
