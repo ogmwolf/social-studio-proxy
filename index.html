@@ -717,8 +717,9 @@ async function callAPIHaiku(system, msg, search=true, maxTokens=400) {
   throw new Error('No JSON found');
 }
 
-async function researchCategory(category, tovKey) {
-  const system = `You are a research assistant for a senior marketing exec. Search the web for today's single most significant story in the ${category} space. Find something with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on. Use a maximum of 2 web searches. First search broadly for the best story. Second search only if you need to verify a specific detail or number. Return the JSON after your second search at the latest — do not search a third time.\n\nReturn ONLY a raw JSON object:\n- "topic": "${category}"\n- "headline": short story title (1 line)\n- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today\n\nNo preamble. No commentary. Raw JSON object only.`;
+async function researchCategory(category, tovKey, avoidHeadline=null) {
+  const avoid = avoidHeadline ? ` Do not return this story — find a different one: "${avoidHeadline}"` : '';
+  const system = `You are a research assistant for a senior marketing exec. Search the web for today's single most significant story in the ${category} space. Find something with real data, industry tension, or emerging shifts — the kind a sharp exec would want a take on. Use a maximum of 2 web searches. First search broadly for the best story. Second search only if you need to verify a specific detail or number. Return the JSON after your second search at the latest — do not search a third time.${avoid}\n\nReturn ONLY a raw JSON object:\n- "topic": "${category}"\n- "headline": short story title (1 line)\n- "context": 2-3 sentences — what's happening, any key numbers or names, why it matters today\n\nNo preamble. No commentary. Raw JSON object only.`;
   const guidance = getTovResearchGuidance(tovKey);
   const msg = `Find today's most significant story in ${category}. Look beyond the obvious outlets — trade publications, earnings calls, regulatory filings, niche communities, international sources. Prioritize early signal over saturation.${guidance ? ' ' + guidance : ''}`;
   return callAPIHaiku(system, msg);
@@ -1455,16 +1456,7 @@ async function freshStory(key, i) {
   btn.textContent = '⟳ Searching...';
 
   try {
-    const TOPIC_CONSTRAINTS = {
-      'Tech & AI': 'AI, machine learning, semiconductor, cloud computing, or major tech company news. Do not return gaming, marketing, or entertainment stories.',
-      'Culture & Media': 'entertainment, streaming, film, music, social media, or creator economy news. Do not return tech, gaming, or marketing stories.',
-      'Brand & Marketing': 'brand strategy, advertising, marketing campaigns, or consumer behavior news. Do not return tech, gaming, or entertainment stories.',
-      'Gaming': 'game studios, game launches, gaming platforms, esports, mobile gaming, game economies, or gaming business news. Do not return AI, marketing, or media stories.'
-    };
-    const constraint = TOPIC_CONSTRAINTS[topic] || topic;
-    const system = `You are a research assistant. Your ONLY job is to find a story about ${constraint}\n\nFind a different story than this one: "${avoidHeadline}".\n\nUse a maximum of 2 web searches. Return ONLY a raw JSON object: { "topic": "${topic}", "headline": "...", "context": "2-3 sentences with key numbers and names" }. No preamble. No commentary. Raw JSON only.`;
-    const msg = `Find a ${topic} industry story today — strictly ${topic} only. Different from: "${avoidHeadline}".`;
-    const freshResearch = await callAPIHaiku(system, msg, true, 400);
+    const freshResearch = await researchCategory(topic, null, avoidHeadline);
 
     if (!freshResearch || !freshResearch.headline) throw new Error('No story found');
 
