@@ -1455,8 +1455,15 @@ async function freshStory(key, i) {
   btn.textContent = '⟳ Searching...';
 
   try {
-    const system = `You are a research assistant for a senior marketing exec. Search the web for today's most significant story in the ${topic} space — but NOT the following story, find something different: "${avoidHeadline}". Find something with real data, industry tension, or emerging shifts. Use a maximum of 2 web searches. Return ONLY a raw JSON object: { "topic": "${topic}", "headline": "...", "context": "2-3 sentences" }. No preamble. No commentary. Raw JSON only.`;
-    const msg = `Find a different story in ${topic} today. Avoid: "${avoidHeadline}". Look beyond the obvious outlets.`;
+    const TOPIC_CONSTRAINTS = {
+      'Tech & AI': 'AI, machine learning, semiconductor, cloud computing, or major tech company news. Do not return gaming, marketing, or entertainment stories.',
+      'Culture & Media': 'entertainment, streaming, film, music, social media, or creator economy news. Do not return tech, gaming, or marketing stories.',
+      'Brand & Marketing': 'brand strategy, advertising, marketing campaigns, or consumer behavior news. Do not return tech, gaming, or entertainment stories.',
+      'Gaming': 'game studios, game launches, gaming platforms, esports, mobile gaming, game economies, or gaming business news. Do not return AI, marketing, or media stories.'
+    };
+    const constraint = TOPIC_CONSTRAINTS[topic] || topic;
+    const system = `You are a research assistant. Your ONLY job is to find a story about ${constraint}\n\nFind a different story than this one: "${avoidHeadline}".\n\nUse a maximum of 2 web searches. Return ONLY a raw JSON object: { "topic": "${topic}", "headline": "...", "context": "2-3 sentences with key numbers and names" }. No preamble. No commentary. Raw JSON only.`;
+    const msg = `Find a ${topic} industry story today — strictly ${topic} only. Different from: "${avoidHeadline}".`;
     const freshResearch = await callAPIHaiku(system, msg, true, 400);
 
     if (!freshResearch || !freshResearch.headline) throw new Error('No story found');
