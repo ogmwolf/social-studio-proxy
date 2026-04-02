@@ -22,11 +22,24 @@
   h1 { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
   h1 span { color: var(--blue); }
   .subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; }
-  .tabs { display: flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 28px; }
-  .tab { flex: 1; padding: 10px 12px; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); }
-  .tab.active { background: var(--blue); color: #fff; }
-  .tab.active.li { background: var(--linkedin); }
-  .tab:hover:not(.active) { color: var(--text); }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 16px 12px; border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); }
+  .tab:hover:not(.active) { border-color: #333; color: var(--text); }
+  #tab-x { color: #888; }
+  #tab-x.active { background: #1c1c1c; color: #fff; border-color: #444; }
+  #tab-x:hover:not(.active) { color: #fff; border-color: #444; }
+  #tab-linkedin { color: #0a66c2; }
+  #tab-linkedin.active { background: #0a66c2; color: #fff; border-color: #0a66c2; }
+  #tab-linkedin:hover:not(.active) { border-color: #0a66c2; }
+  #tab-threads { color: #888; }
+  #tab-threads.active { background: #1c1c1c; color: #fff; border-color: #444; }
+  #tab-threads:hover:not(.active) { color: #fff; border-color: #444; }
+  #tab-instagram { color: #c13584; }
+  #tab-instagram.active { background: #c13584; color: #fff; border-color: #c13584; }
+  #tab-instagram:hover:not(.active) { border-color: #c13584; }
+  #tab-tiktok { color: #ff0050; }
+  #tab-tiktok.active { background: #ff0050; color: #fff; border-color: #ff0050; }
+  #tab-tiktok:hover:not(.active) { border-color: #ff0050; }
   .panel { display: none; }
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
