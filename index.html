@@ -186,14 +186,6 @@
     </button>
   </div>
 
-  <div class="tab-labels">
-    <span class="active">X</span>
-    <span>LinkedIn</span>
-    <span>Threads</span>
-    <span>Instagram</span>
-    <span>TikTok</span>
-  </div>
-
   <!-- X PLATFORM -->
   <div class="panel active" id="panel-x">
 
@@ -219,8 +211,8 @@
 
       <!-- WATCH LIST -->
       <div id="rs-watch">
-        <p style="font-family:'DM Mono',monospace;font-size:10px;color:#333;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px">Last 12 hours</p>
         <button class="gen-btn-secondary" id="watchBtn" onclick="loadWatchList()">Fetch Watch List Tweets</button>
+        <p style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;text-align:center;margin-top:-8px;margin-bottom:16px">Last 12 hours</p>
         <div id="watch-error" class="error-box" style="display:none"></div>
         <div id="watch-loading" class="loading-hint" style="display:none">Fetching tweets from your watch list...</div>
         <div id="watch-list" class="trending-list"></div>
@@ -231,8 +223,8 @@
 
       <!-- TRENDING -->
       <div id="rs-trend">
-        <p class="section-label">Hot conversations in your world right now</p>
         <button class="gen-btn-secondary" id="trendBtn" onclick="findTrending()">Find Trending Tweets</button>
+        <p style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;text-align:center;margin-top:-8px;margin-bottom:16px">Hot conversations in your world right now</p>
         <div id="trend-error" class="error-box" style="display:none"></div>
         <div id="trend-loading" class="loading-hint" style="display:none">Searching X for trending conversations...</div>
         <div id="trending-list" class="trending-list"></div>
