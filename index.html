@@ -809,7 +809,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       .replace(/\*\*(.*?)\*\*/g,'$1')
       .replace(/\*(.*?)\*/g,'$1')
       .replace(/_(.*?)_/g,'$1');
-    const showRewrite = isLinkedIn || key === 'orig';
+    const showRewrite = isLinkedIn || ['orig', 'reply', 'paste'].includes(key);
     const copyClass = isLinkedIn ? 'btn-copy li' : 'btn-copy';
     const cardClass = showRewrite && (t.rewritten || t.freshStory) ? (t.freshStory ? 'card card-fresh' : 'card card-rewritten') : 'card';
     const rewrittenBadge = showRewrite && t.rewritten && !t.freshStory ? `<span class="rewritten-badge">✦ Rewritten</span>` : '';
@@ -1463,15 +1463,24 @@ function selectCardTov(key, i, tovKey) {
 async function rewriteCard(key, i) {
   const isLi = key === 'li';
   const cache = isLi ? liResearchCache : tweetResearchCache;
-  if (!cache) return;
-
   const panel = document.getElementById(`${key}-rewrite-panel-${i}`);
+  const btn = panel.querySelector('.btn-rewrite-go');
+
+  if (!cache) {
+    btn.textContent = 'No research yet — generate tweets first';
+    setTimeout(() => { btn.textContent = 'Go'; }, 2500);
+    return;
+  }
+
   const tovKey = panel.dataset.tov || null;
   const card = data[key][i];
   const research = cache.topics.find(t => t.topic === card.topic);
-  if (!research) return;
+  if (!research) {
+    btn.textContent = 'No cached research for this topic';
+    setTimeout(() => { btn.textContent = 'Go'; }, 2500);
+    return;
+  }
 
-  const btn = panel.querySelector('.btn-rewrite-go');
   btn.disabled = true;
   btn.textContent = 'Going...';
 
@@ -1490,8 +1499,8 @@ async function rewriteCard(key, i) {
     if (result && result[0]) {
       result[0].rewritten = true;
       data[key][i] = result[0];
-      const containerId = isLi ? 'li-cards' : 'orig-cards';
-      const footerId   = isLi ? 'li-footer' : 'orig-footer';
+      const containerId = isLi ? 'li-cards' : `${key}-cards`;
+      const footerId   = isLi ? 'li-footer' : `${key}-footer`;
       renderCards(data[key], key, containerId, footerId, isLi);
     }
   } catch(e) {
