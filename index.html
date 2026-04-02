@@ -23,24 +23,19 @@
   h1 span { color: #fff; }
   h1 .version { font-weight: 400; color: var(--muted); }
   .subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; }
-  .tabs { display: flex; gap: 12px; margin-bottom: 28px; justify-content: flex-start; }
-  .tab { width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .tab:hover:not(.active) { border-color: #333; color: var(--text); }
-  #tab-x { color: #888; }
-  #tab-x.active { background: #111; border-color: #555; color: #fff; }
-  #tab-x:hover:not(.active) { border-color: #555; color: #fff; }
-  #tab-linkedin { color: #0a66c2; }
-  #tab-linkedin.active { background: var(--linkedin); border-color: var(--linkedin); color: #fff; }
-  #tab-linkedin:hover:not(.active) { border-color: var(--linkedin); color: var(--linkedin); }
-  #tab-threads { color: #888; }
-  #tab-threads.active { background: #111; border-color: #555; color: #fff; }
-  #tab-threads:hover:not(.active) { border-color: #555; color: #fff; }
-  #tab-instagram { color: #c13584; }
-  #tab-instagram.active { background: #1a0a1a; border-color: #c13584; color: #fff; box-shadow: 0 0 0 1px #c13584; }
-  #tab-instagram:hover:not(.active) { border-color: #c13584; color: #c13584; }
-  #tab-tiktok { color: #fe2c55; }
-  #tab-tiktok.active { background: #0d0d0d; border-color: #fe2c55; color: #fe2c55; }
-  #tab-tiktok:hover:not(.active) { border-color: #fe2c55; color: #fe2c55; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 8px; justify-content: flex-start; }
+  .tab { width: 52px; height: 52px; padding: 0; border: 1px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; background: #111; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tab:hover:not(.active) { border-color: #444; background: #161616; }
+  #tab-x.active { border-color: #555; background: #1a1a1a; }
+  #tab-x:hover:not(.active) { border-color: #555; }
+  #tab-linkedin.active { border-color: #0a66c2; background: #0a1929; }
+  #tab-linkedin:hover:not(.active) { border-color: #0a66c244; }
+  #tab-threads.active { border-color: #555; background: #1a1a1a; }
+  #tab-threads:hover:not(.active) { border-color: #555; }
+  #tab-instagram.active { border-color: #c13584; background: #1a0a12; }
+  #tab-instagram:hover:not(.active) { border-color: #c1358466; }
+  #tab-tiktok.active { border-color: #25F4EE; background: #0a1a1a; }
+  #tab-tiktok:hover:not(.active) { border-color: #25F4EE44; }
   .panel { display: none; }
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -78,10 +73,6 @@
   .btn-copy:hover:not(.copied) { opacity: 0.8; }
   .btn-edit { padding: 10px 14px; font-size: 12px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
   .btn-edit:hover { color: var(--text); }
-  .reply-source-tabs { display:flex; gap:4px; margin-bottom:20px; }
-  .rsTab { flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; background:transparent; color:var(--muted); transition:all 0.2s; }
-  .rsTab.active { background:var(--surface2); color:var(--text); border-color:#333; }
-  .rsTab:hover:not(.active) { color:var(--text); }
   .account-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:#555; background:#151515; padding:2px 8px; border-radius:4px; }
   .tier2-badge { font-family:'DM Mono',monospace; font-size:9px; color:#333; margin-left:4px; }
   .btn-img { padding: 10px 12px; font-size: 12px; background: #151015; color: #664ea0; border: 1px solid #a78bfa22; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
@@ -140,7 +131,7 @@
   .btn-fresh-story:disabled { opacity: 0.4; cursor: not-allowed; }
   .card-fresh { border-left: 3px solid #f59e0b; }
   .fresh-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
-  .zone-divider { display: flex; align-items: center; gap: 12px; margin: 32px 0 24px; }
+  .zone-divider { display: flex; align-items: center; gap: 12px; margin: 36px 0 28px; }
   .zone-divider::before, .zone-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .zone-divider span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
   .coming-soon { text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; padding: 60px 20px; letter-spacing: 1px; }
@@ -166,19 +157,26 @@
 
   <div class="tabs">
     <button class="tab active" id="tab-x" onclick="switchPlatform('x',this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
     </button>
-    <button class="tab li" id="tab-linkedin" onclick="switchPlatform('linkedin',this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <button class="tab" id="tab-linkedin" onclick="switchPlatform('linkedin',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
     </button>
     <button class="tab" id="tab-threads" onclick="switchPlatform('threads',this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.312-.737-.861-1.376-1.634-1.826-.758 3.017-2.959 4.576-6.29 4.576-1.588 0-2.94-.434-3.911-1.254-1.075-.905-1.64-2.16-1.585-3.54.11-2.748 2.248-4.656 5.444-4.753 1.154-.033 2.29.078 3.395.33-.137-.87-.412-1.51-.833-1.91-.523-.504-1.327-.76-2.39-.762h-.048c-.832 0-2.134.237-2.917 1.509l-1.686-1.146C8.56 4.914 10.16 4.05 12.18 4.05h.064c3.834.033 6.02 2.375 6.02 6.43 0 .406-.028.796-.08 1.17.589.39 1.096.866 1.504 1.42 1.05 1.43 1.386 3.35.903 5.077-.6 2.177-2.118 3.865-4.278 4.742-1.298.528-2.786.795-4.39.808l-.737.303z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.312-.737-.861-1.376-1.634-1.826-.758 3.017-2.959 4.576-6.29 4.576-1.588 0-2.94-.434-3.911-1.254-1.075-.905-1.64-2.16-1.585-3.54.11-2.748 2.248-4.656 5.444-4.753 1.154-.033 2.29.078 3.395.33-.137-.87-.412-1.51-.833-1.91-.523-.504-1.327-.76-2.39-.762h-.048c-.832 0-2.134.237-2.917 1.509l-1.686-1.146C8.56 4.914 10.16 4.05 12.18 4.05h.064c3.834.033 6.02 2.375 6.02 6.43 0 .406-.028.796-.08 1.17.589.39 1.096.866 1.504 1.42 1.05 1.43 1.386 3.35.903 5.077-.6 2.177-2.118 3.865-4.278 4.742-1.298.528-2.786.795-4.39.808l-.737.303z"/></svg>
     </button>
     <button class="tab" id="tab-instagram" onclick="switchPlatform('instagram',this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="25%" style="stop-color:#e6683c"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="75%" style="stop-color:#cc2366"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs>
+        <path fill="url(#ig-grad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+      </svg>
     </button>
     <button class="tab" id="tab-tiktok" onclick="switchPlatform('tiktok',this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="#25F4EE" transform="translate(-0.8, 0.8)" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+        <path fill="#FE2C55" transform="translate(0.8, -0.8)" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+        <path fill="#ffffff" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+      </svg>
     </button>
   </div>
 
@@ -187,6 +185,7 @@
 
     <!-- ZONE 1: CREATE -->
     <div id="panel-original">
+      <div class="zone-divider" style="margin-top:0"><span>✦ Create</span></div>
       <button class="gen-btn" id="genBtn" onclick="generateOriginal()">Research & Draft Tweets</button>
       <div id="orig-rewrite-info" style="display:none">
         <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
@@ -244,8 +243,7 @@
         <button class="back-btn" onclick="resetReply()">← Back to tweets</button>
       </div>
 
-      <hr class="divider">
-      <p class="section-label">Or paste any tweet to reply to</p>
+      <div class="zone-divider"><span>↩ Reply Guy</span></div>
       <label class="input-label">Paste tweet text here</label>
       <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
       <div class="selector-block">
@@ -1150,13 +1148,6 @@ function getTimeAgo(iso) {
   return Math.floor(mins/60) + 'h ago';
 }
 
-function switchReplySource(name, el) {
-  document.querySelectorAll('.rsTab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('rs-watch').style.display = name==='watch' ? 'block' : 'none';
-  document.getElementById('rs-trend').style.display = name==='trend' ? 'block' : 'none';
-  document.getElementById('step-reply').style.display = 'none';
-}
 
 // ── TRENDING (Real X API) ──
 const TRENDING_QUERIES = [
