@@ -1549,7 +1549,7 @@ function setLinkedInPhase(phase) { /* no-op — Fresh Stories lives in card head
 function buildLinkedInGenerationPrompt(topics) {
   const lines = topics.map((t,i) => `${i+1}. [${t.topic}] ${t.headline}\nContext: ${t.context}`);
   const count = topics.length === 1 ? '1 LinkedIn post' : `${topics.length} LinkedIn posts, one per topic`;
-  return `Here are today's trending topics for LinkedIn:\n\n${lines.join('\n\n')}\n\nBefore writing: scan for overlap. If two entries reference the same underlying news event, lawsuit, company, or announcement, pivot the weaker-fit one to a clearly different story in that category that you know about. Never write about the same event twice across the ${count}.\n\nWrite ${count}.`;
+  return `Here are today's stories:\n\n${lines.join('\n\n')}\n\nBefore writing: scan for overlap. If two entries reference the same underlying news event, pivot the weaker one to a different story in that category.\n\nFor each story, write in Matt's voice — not a report about what happened, but his take on what it means, what's surprising, or what nobody's talking about. The research context is raw material, not the post. Matt's observation about the story is the post.\n\nWrite ${count}.`;
 }
 
 async function generateLinkedIn() {
@@ -1666,7 +1666,7 @@ async function rewriteCard(key, i) {
     let result;
     if (isLi) {
       const system = buildSystemPrompt(LINKEDIN_SYSTEM, tovKey, null);
-      const msg = `Here is today's story for LinkedIn:\n\n[${research.topic}] ${research.headline}\nContext: ${research.context}\n\nWrite 1 LinkedIn post. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
+      const msg = `Here is today's story:\n\n[${research.topic}] ${research.headline}\nContext: ${research.context}\n\nThis is raw research — not the post. Write Matt's take on this story. What's surprising about it, what nobody's saying, or what it actually means. Not a report. His observation. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
       result = await callAPI(system, msg, false);
     } else {
       const templates = pickTemplates().slice(0, 1);
