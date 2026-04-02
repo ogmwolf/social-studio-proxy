@@ -1487,6 +1487,7 @@ async function freshStory(key, i) {
     const msg2 = `Here is today's story for LinkedIn:\n\n[${freshResearch.topic}] ${freshResearch.headline}\nContext: ${freshResearch.context}\n\nWrite 1 LinkedIn post in my voice. First line must hook. Return JSON array of exactly 1 object with fields: topic, headline, post, angle.`;
     const result = await callAPI(system2, msg2, false);
     if (result && result[0]) {
+      result[0].topic = topic;  // force original topic — never let Sonnet override it
       result[0].rewritten = false;
       result[0].freshStory = true;
       data[key][i] = result[0];
