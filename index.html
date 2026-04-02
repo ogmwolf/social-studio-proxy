@@ -550,11 +550,11 @@ function pickLinkedInEnding() {
 
 const TRENDING_SYSTEM = `Research assistant for Matt Wolf — exec in gaming, AI, brand marketing, culture.
 
-Search the web RIGHT NOW for hottest conversations and debates gaining traction in Tech & AI, Culture & Media, Brand & Marketing. Look at news, Reddit, LinkedIn, blogs, forums. Find topics where a sharp exec's voice adds real value. Use a maximum of 2 web searches. First search broadly for the hottest conversations. Second search only if you need to verify a specific story or detail. Return the JSON after your second search at the latest — do not search a third time.
+Search the web RIGHT NOW for hottest conversations and debates gaining traction in Tech & AI, Culture & Media, Brand & Marketing, and Gaming. Look at news, Reddit, LinkedIn, blogs, forums. Find topics where a sharp exec's voice adds real value. Use a maximum of 2 web searches. First search broadly for the hottest conversations. Second search only if you need to verify a specific story or detail. Return the JSON after your second search at the latest — do not search a third time.
 
 Return JSON array of exactly 5 objects:
 - "author": Twitter/X handle of the person or account driving the conversation (e.g. "@sama", "@garyvee", "@benedictevans"). If it's a publication use their X handle (e.g. "@TechCrunch"). Always start with @.
-- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"
+- "topic": "Tech & AI"|"Culture & Media"|"Brand & Marketing"|"Gaming"
 - "tweet": 1-2 sentence summary of what's being debated (written like a tweet)
 - "why": one sentence on why this is good reply opportunity for Matt
 - "engagement": "Trending today"|"Hot debate"|"Gaining traction"
@@ -1221,7 +1221,7 @@ async function findTrending() {
     // Fallback to web search if X API fails
     console.warn('X API failed, falling back to web search:', e);
     try {
-      trending = await callAPIHaiku(TRENDING_SYSTEM,'Find the 5 hottest conversations happening right now across Tech & AI, Culture & Media, Brand & Marketing, and Gaming.', true, 500);
+      trending = await callAPIHaiku(TRENDING_SYSTEM,'Find the 5 hottest conversations happening right now across Tech & AI, Culture & Media, Brand & Marketing, and Gaming.', true, 1500);
       const topicColors2 = { 'Tech & AI':'#00B4D8', 'Culture & Media':'#a78bfa', 'Brand & Marketing':'#f59e0b' };
       document.getElementById('trending-list').innerHTML = trending.map((t,i)=>{
         const c=topicColors2[t.topic]||'#555';
