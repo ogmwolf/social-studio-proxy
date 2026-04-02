@@ -764,7 +764,7 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
     const cardHeader = showRewrite
       ? `<div class="card-header">
           <div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}${rewrittenBadge}${freshBadge}</div>
-          <button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button>
+          <div style="display:flex;gap:6px">${isLinkedIn && liResearchCache ? `<button class="btn-fresh-story" id="${key}-fresh-${i}" onclick="freshStory('${key}',${i})">⟳ Fresh Story</button>` : ''}<button class="btn-rewrite-card" onclick="expandRewrite('${key}',${i})">↺ Rewrite</button></div>
         </div>`
       : `<div class="tags">${t.topic?`<span class="tag" style="background:${topicColor}1a;color:${topicColor}">${t.topic}</span>`:''}</div>`;
     return `<div class="${cardClass}" style="animation-delay:${i*.08}s">
@@ -776,7 +776,6 @@ function renderCards(arr, key, containerId, footerId, isLinkedIn=false) {
       <div class="actions">
         <button class="${copyClass}" id="${key}-copy-${i}" onclick="copyCard('${key}',${i},${isLinkedIn})">Copy</button>
         <button class="btn-edit" onclick="editCard('${key}',${i},'${containerId}','${footerId}',${isLinkedIn},${maxChars})">Edit</button>
-        ${isLinkedIn && liResearchCache ? `<button class="btn-fresh-story" id="${key}-fresh-${i}" onclick="freshStory('${key}',${i})">⟳ Fresh Story</button>` : ''}
         <button class="btn-img" id="${key}-imgbtn-${i}" onclick="generateImgPrompt('${key}',${i})">🖼 Image Prompt</button>
       </div>
       <div id="${key}-imgbox-${i}" style="display:none"></div>
