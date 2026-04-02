@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Social Studio 1.0</title>
+<title>Social Studio 1.1</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23a78bfa'/><circle cx='50' cy='50' r='34' fill='%230d0d0d'/><circle cx='50' cy='50' r='20' fill='%23a78bfa'/><circle cx='50' cy='50' r='7' fill='%230d0d0d'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -20,26 +20,27 @@
   .eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
   .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: inline-block; }
   h1 { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
-  h1 span { color: var(--blue); }
+  h1 span { color: #fff; }
+  h1 .version { font-weight: 400; color: var(--muted); }
   .subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-  .tab { flex: 1; padding: 16px 12px; border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); }
+  .tabs { display: flex; gap: 12px; margin-bottom: 28px; justify-content: flex-start; }
+  .tab { width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .tab:hover:not(.active) { border-color: #333; color: var(--text); }
   #tab-x { color: #888; }
-  #tab-x.active { background: #1c1c1c; color: #fff; border-color: #444; }
-  #tab-x:hover:not(.active) { color: #fff; border-color: #444; }
+  #tab-x.active { background: #111; border-color: #555; color: #fff; }
+  #tab-x:hover:not(.active) { border-color: #555; color: #fff; }
   #tab-linkedin { color: #0a66c2; }
-  #tab-linkedin.active { background: #0a66c2; color: #fff; border-color: #0a66c2; }
-  #tab-linkedin:hover:not(.active) { border-color: #0a66c2; }
+  #tab-linkedin.active { background: var(--linkedin); border-color: var(--linkedin); color: #fff; }
+  #tab-linkedin:hover:not(.active) { border-color: var(--linkedin); color: var(--linkedin); }
   #tab-threads { color: #888; }
-  #tab-threads.active { background: #1c1c1c; color: #fff; border-color: #444; }
-  #tab-threads:hover:not(.active) { color: #fff; border-color: #444; }
+  #tab-threads.active { background: #111; border-color: #555; color: #fff; }
+  #tab-threads:hover:not(.active) { border-color: #555; color: #fff; }
   #tab-instagram { color: #c13584; }
-  #tab-instagram.active { background: #c13584; color: #fff; border-color: #c13584; }
-  #tab-instagram:hover:not(.active) { border-color: #c13584; }
-  #tab-tiktok { color: #ff0050; }
-  #tab-tiktok.active { background: #ff0050; color: #fff; border-color: #ff0050; }
-  #tab-tiktok:hover:not(.active) { border-color: #ff0050; }
+  #tab-instagram.active { background: #1a0a1a; border-color: #c13584; color: #fff; box-shadow: 0 0 0 1px #c13584; }
+  #tab-instagram:hover:not(.active) { border-color: #c13584; color: #c13584; }
+  #tab-tiktok { color: #fe2c55; }
+  #tab-tiktok.active { background: #0d0d0d; border-color: #fe2c55; color: #fe2c55; }
+  #tab-tiktok:hover:not(.active) { border-color: #fe2c55; color: #fe2c55; }
   .panel { display: none; }
   .panel.active { display: block; }
   .gen-btn { width: 100%; padding: 15px 20px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 24px; transition: opacity 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -139,11 +140,9 @@
   .btn-fresh-story:disabled { opacity: 0.4; cursor: not-allowed; }
   .card-fresh { border-left: 3px solid #f59e0b; }
   .fresh-badge { display: inline-block; background: #f59e0b1a; color: #f59e0b; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; border: 1px solid #f59e0b33; margin-left: 6px; }
-  .tab { display: flex; align-items: center; justify-content: center; }
-  .sub-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
-  .sub-tab { padding: 7px 16px; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--muted); }
-  .sub-tab.active { background: var(--blue); color: #fff; }
-  .sub-tab:hover:not(.active) { color: var(--text); }
+  .zone-divider { display: flex; align-items: center; gap: 12px; margin: 32px 0 24px; }
+  .zone-divider::before, .zone-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .zone-divider span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
   .coming-soon { text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; padding: 60px 20px; letter-spacing: 1px; }
 </style>
 </head>
@@ -151,7 +150,7 @@
 <div id="gate" style="position:fixed;inset:0;background:#0d0d0d;z-index:9999;display:flex;align-items:center;justify-content:center;">
   <div style="background:#1a1a2e;border:1px solid #2a2a3e;border-radius:16px;padding:40px;width:320px;text-align:center;">
     <div style="font-size:32px;margin-bottom:16px">🔐</div>
-    <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:#a78bfa;margin-bottom:24px">SOCIAL STUDIO 1.0</div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:#a78bfa;margin-bottom:24px">SOCIAL STUDIO 1.1</div>
     <input id="gate-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()" style="width:100%;box-sizing:border-box;background:#0d0d0d;border:1px solid #333;border-radius:8px;padding:12px 16px;color:#e0e0e0;font-size:15px;margin-bottom:12px;outline:none;">
     <div id="gate-error" style="color:#ff4b4b;font-size:12px;margin-bottom:12px;display:none">Incorrect password</div>
     <button onclick="checkPassword()" style="width:100%;background:#a78bfa;border:none;border-radius:8px;padding:12px;color:#0d0d0d;font-weight:700;font-size:15px;cursor:pointer">Enter</button>
@@ -161,7 +160,7 @@
 <div class="wrap">
   <div class="header">
     <div class="eyebrow">Social Studio</div>
-    <h1><span>Social Studio</span> 1.0</h1>
+    <h1><span>Social Studio</span> <span class="version">1.1</span></h1>
     <p class="subtitle">Research → draft → approve → post</p>
   </div>
 
@@ -183,83 +182,83 @@
     </button>
   </div>
 
-  <div class="sub-tabs" id="x-sub-tabs">
-    <button class="sub-tab active" id="subtab-original" onclick="switchTab('original',this)">⚡ Tweets</button>
-    <button class="sub-tab" id="subtab-reply" onclick="switchTab('reply',this)">↩ Reply</button>
-  </div>
+  <!-- X PLATFORM -->
+  <div class="panel active" id="panel-x">
 
-  <!-- TWEETS -->
-  <div class="panel active" id="panel-original">
-    <button class="gen-btn" id="genBtn" onclick="generateOriginal()"><span>🔍</span> Research & Draft Tweets</button>
-    <div id="orig-rewrite-info" style="display:none">
-      <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
-      <button class="tweet-fresh-btn" onclick="clearTweetCache()">↺ Fresh Stories</button>
-    </div>
-    <div id="orig-error" class="error-box" style="display:none"></div>
-    <div id="orig-loading" class="loading-hint" style="display:none">Researching...</div>
-    <div id="orig-cards" class="cards"></div>
-    <div id="orig-footer" class="footer-note" style="display:none">Copy → paste into Twitter/X → post when ready</div>
-  </div>
-
-  <!-- REPLY -->
-  <div class="panel" id="panel-reply">
-
-    <!-- Source switcher -->
-    <div class="reply-source-tabs">
-      <button class="rsTab active" id="rsTab-watch" onclick="switchReplySource('watch',this)">👥 Watch List</button>
-      <button class="rsTab" id="rsTab-trend" onclick="switchReplySource('trend',this)">🔥 Trending</button>
-    </div>
-
-    <!-- WATCH LIST -->
-    <div id="rs-watch">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <p class="section-label" style="margin:0">Last 12 hours from your watch list</p>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#333">~$0.25 max</span>
+    <!-- ZONE 1: CREATE -->
+    <div id="panel-original">
+      <button class="gen-btn" id="genBtn" onclick="generateOriginal()">Research & Draft Tweets</button>
+      <div id="orig-rewrite-info" style="display:none">
+        <p class="li-rewrite-hint">Using today's stories — rewrite as many times as you want</p>
+        <button class="tweet-fresh-btn" onclick="clearTweetCache()">↺ Fresh Stories</button>
       </div>
-      <button class="gen-btn" id="watchBtn" onclick="loadWatchList()"><span>👥</span> Fetch Watch List Tweets</button>
-      <div id="watch-error" class="error-box" style="display:none"></div>
-      <div id="watch-loading" class="loading-hint" style="display:none">Fetching tweets from your watch list...</div>
-      <div id="watch-list" class="trending-list"></div>
+      <div id="orig-error" class="error-box" style="display:none"></div>
+      <div id="orig-loading" class="loading-hint" style="display:none">Researching...</div>
+      <div id="orig-cards" class="cards"></div>
+      <div id="orig-footer" class="footer-note" style="display:none">Copy → paste into Twitter/X → post when ready</div>
     </div>
 
-    <!-- TRENDING -->
-    <div id="rs-trend" style="display:none">
-      <p class="section-label">Hot conversations in your world right now</p>
-      <button class="gen-btn" id="trendBtn" onclick="findTrending()"><span>🔥</span> Find Trending Tweets</button>
-      <div id="trend-error" class="error-box" style="display:none"></div>
-      <div id="trend-loading" class="loading-hint" style="display:none">Searching X for trending conversations...</div>
-      <div id="trending-list" class="trending-list"></div>
-    </div>
+    <!-- ZONE DIVIDER -->
+    <div class="zone-divider"><span>↩ React</span></div>
 
-    <!-- Draft reply (shared) -->
-    <div id="step-reply" style="display:none">
-      <p class="section-label">Draft your reply</p>
-      <div id="selected-preview" class="selected-preview"></div>
+    <!-- ZONE 2: REACT -->
+    <div id="panel-reply">
+
+      <!-- WATCH LIST -->
+      <div id="rs-watch">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <p class="section-label" style="margin:0">Last 12 hours from your watch list</p>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:#333">~$0.25 max</span>
+        </div>
+        <button class="gen-btn" id="watchBtn" onclick="loadWatchList()"><span>👥</span> Fetch Watch List Tweets</button>
+        <div id="watch-error" class="error-box" style="display:none"></div>
+        <div id="watch-loading" class="loading-hint" style="display:none">Fetching tweets from your watch list...</div>
+        <div id="watch-list" class="trending-list"></div>
+      </div>
+
+      <!-- ZONE DIVIDER: TRENDING -->
+      <div class="zone-divider"><span>🔥 Trending</span></div>
+
+      <!-- TRENDING -->
+      <div id="rs-trend">
+        <p class="section-label">Hot conversations in your world right now</p>
+        <button class="gen-btn" id="trendBtn" onclick="findTrending()"><span>🔥</span> Find Trending Tweets</button>
+        <div id="trend-error" class="error-box" style="display:none"></div>
+        <div id="trend-loading" class="loading-hint" style="display:none">Searching X for trending conversations...</div>
+        <div id="trending-list" class="trending-list"></div>
+      </div>
+
+      <!-- Draft reply (shared) -->
+      <div id="step-reply" style="display:none">
+        <p class="section-label">Draft your reply</p>
+        <div id="selected-preview" class="selected-preview"></div>
+        <div class="selector-block">
+          <span class="selector-label">Tone of Voice</span>
+          <div class="selector-row" id="tov-reply-row"></div>
+        </div>
+        <button class="gen-btn" id="replyBtn" onclick="generateReply()"><span>↩</span> Draft Reply in My Voice</button>
+        <div id="reply-error" class="error-box" style="display:none"></div>
+        <div id="reply-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
+        <div id="reply-cards" class="cards"></div>
+        <div id="reply-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
+        <button class="back-btn" onclick="resetReply()">← Back to tweets</button>
+      </div>
+
+      <hr class="divider">
+      <p class="section-label">Or paste any tweet to reply to</p>
+      <label class="input-label">Paste tweet text here</label>
+      <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
       <div class="selector-block">
         <span class="selector-label">Tone of Voice</span>
-        <div class="selector-row" id="tov-reply-row"></div>
+        <div class="selector-row" id="tov-paste-row"></div>
       </div>
-      <button class="gen-btn" id="replyBtn" onclick="generateReply()"><span>↩</span> Draft Reply in My Voice</button>
-      <div id="reply-error" class="error-box" style="display:none"></div>
-      <div id="reply-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
-      <div id="reply-cards" class="cards"></div>
-      <div id="reply-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
-      <button class="back-btn" onclick="resetReply()">← Back to tweets</button>
+      <button class="gen-btn" id="pasteBtn" onclick="generatePastedReply()"><span>↩</span> Draft Reply to This Tweet</button>
+      <div id="paste-error" class="error-box" style="display:none"></div>
+      <div id="paste-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
+      <div id="paste-cards" class="cards"></div>
+      <div id="paste-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
     </div>
 
-    <hr class="divider">
-    <p class="section-label">Or paste any tweet to reply to</p>
-    <label class="input-label">Paste tweet text here</label>
-    <textarea class="tweet-input" id="pastedTweet" placeholder="Paste any tweet you want to reply to..."></textarea>
-    <div class="selector-block">
-      <span class="selector-label">Tone of Voice</span>
-      <div class="selector-row" id="tov-paste-row"></div>
-    </div>
-    <button class="gen-btn" id="pasteBtn" onclick="generatePastedReply()"><span>↩</span> Draft Reply to This Tweet</button>
-    <div id="paste-error" class="error-box" style="display:none"></div>
-    <div id="paste-loading" class="loading-hint" style="display:none">Drafting your reply...</div>
-    <div id="paste-cards" class="cards"></div>
-    <div id="paste-footer" class="footer-note" style="display:none">Copy → find on Twitter/X → reply</div>
   </div>
 
   <!-- LINKEDIN -->
@@ -712,30 +711,12 @@ function buildSelectorRow(containerId, options, activeKey, onToggle) {
 }
 function toggleTovReply(key) { activeTovReply = activeTovReply === key ? null : key; buildSelectorRow('tov-reply-row', TOV_OPTIONS, activeTovReply, 'toggleTovReply'); }
 function toggleTovPaste(key) { activeTovPaste = activeTovPaste === key ? null : key; buildSelectorRow('tov-paste-row', TOV_OPTIONS, activeTovPaste, 'toggleTovPaste'); }
-function switchTab(name, el) {
-  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-}
-
 function switchPlatform(platform, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  const subTabs = document.getElementById('x-sub-tabs');
-  if (platform === 'x') {
-    subTabs.style.display = 'flex';
-    // activate whichever sub-tab is currently active, default to original
-    const activeSub = document.querySelector('.sub-tab.active');
-    const activePanel = activeSub ? activeSub.id.replace('subtab-', '') : 'original';
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + activePanel).classList.add('active');
-    if (!activeSub) document.getElementById('subtab-original').classList.add('active');
-  } else {
-    subTabs.style.display = 'none';
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + platform).classList.add('active');
-  }
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const panelId = platform === 'x' ? 'panel-x' : 'panel-' + platform;
+  document.getElementById(panelId).classList.add('active');
 }
 
 async function callAPI(system, msg, search=true, maxTokens=4000) {
@@ -975,7 +956,7 @@ function setTweetPhase(phase) {
     btn.innerHTML = '<span>✍️</span> Rewrite Tweets';
     info.style.display = 'block';
   } else {
-    btn.innerHTML = '<span>🔍</span> Research & Draft Tweets';
+    btn.innerHTML = 'Research & Draft Tweets';
     info.style.display = 'none';
   }
 }
@@ -1010,7 +991,7 @@ async function generateOriginal() {
       busy('genBtn','orig-loading',true,'<span>✍️</span> Rewrite Tweets','Writing your tweets...');
     } else {
       const cats = ['Tech & AI', 'Culture & Media', 'Brand & Marketing', 'Gaming'];
-      busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets',`Researching ${cats.join(', ')}...`);
+      busy('genBtn','orig-loading',true,'Research & Draft Tweets',`Researching ${cats.join(', ')}...`);
 
       const settled = await Promise.all(cats.map(cat =>
         researchCategory(cat, null)
@@ -1021,7 +1002,7 @@ async function generateOriginal() {
       if (topics.length === 0) throw new Error('All research calls failed');
 
       if (topics.length > 1) {
-        busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets','Ranking today\'s stories...');
+        busy('genBtn','orig-loading',true,'Research & Draft Tweets','Ranking today\'s stories...');
         try {
           const rankResult = await callAPIHaiku(LINKEDIN_RANKING_SYSTEM, buildRankingMsg(topics), false, 150);
           if (rankResult.ranked && Array.isArray(rankResult.ranked)) {
@@ -1033,7 +1014,7 @@ async function generateOriginal() {
       }
 
       saveTweetCache(topics);
-      busy('genBtn','orig-loading',true,'<span>🔍</span> Research & Draft Tweets','Writing your tweets...');
+      busy('genBtn','orig-loading',true,'Research & Draft Tweets','Writing your tweets...');
     }
 
     data.orig = await callAPI(system, buildTweetGenerationPrompt(topics), false);
@@ -1044,7 +1025,7 @@ async function generateOriginal() {
     document.getElementById('orig-error').style.display='block';
   } finally {
     const inRewrite = tweetResearchCache && tweetResearchCache.date === getLiDateKey();
-    busy('genBtn','orig-loading',false, inRewrite ? '<span>✍️</span> Rewrite Tweets' : '<span>🔍</span> Research & Draft Tweets', '');
+    busy('genBtn','orig-loading',false, inRewrite ? '<span>✍️</span> Rewrite Tweets' : 'Research & Draft Tweets', '');
   }
 }
 
